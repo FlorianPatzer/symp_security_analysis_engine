@@ -1,0 +1,466 @@
+openapi: 3.0.0
+info:
+  title: Analysis Engine
+  version: '1.0'
+  description: Controlling the Analysis Engine as a App
+servers:
+  - url: 'http://localhost:8543/api/v1'
+paths:
+  /analysis:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Analysis'
+              examples:
+                example-1:
+                  value:
+                    - uuid: string
+                      name: string
+                      description: string
+                      targetSystemId: 0
+                      policyAnalyses:
+                        - name: string
+                          description: string
+                          link: string
+                          query: string
+                      lastInvocation: '2019-08-24T14:15:22Z'
+                      lastFinish: '2019-08-24T14:15:22Z'
+                      analysisReports:
+                        - id: 0
+      operationId: get-analysis
+      parameters: []
+    post:
+      summary: ''
+      operationId: post-analysis
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostAnalysis'
+            examples:
+              example-1:
+                value:
+                  uuid: string
+                  name: string
+                  description: string
+                  targetSystemId: 0
+                  policyAnalyses:
+                    - 'http://analysis-hub.org/path/to/policy/analysis'
+      security:
+        - token: []
+  '/analysis/{analysisId}':
+    parameters:
+      - schema:
+          type: string
+        name: analysisId
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analysis'
+              examples:
+                example-1:
+                  value:
+                    uuid: string
+                    name: string
+                    description: string
+                    targetSystemId: 0
+                    policyAnalyses:
+                      - name: string
+                        description: string
+                        link: string
+                        query: string
+                    lastInvocation: '2019-08-24T14:15:22Z'
+                    lastFinish: '2019-08-24T14:15:22Z'
+                    analysisReports:
+                      - id: 0
+      operationId: get-analysis-analysisId
+  '/analysis/{analysisId}/start':
+    parameters:
+      - schema:
+          type: string
+        name: analysisId
+        in: path
+        required: true
+    post:
+      summary: ''
+      operationId: post-analysis-analysisId-start
+      responses:
+        '200':
+          description: Successfully started analysis
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      security:
+        - token: []
+      parameters: []
+  /app:
+    get:
+      summary: ''
+      operationId: get-app
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pending:
+                    type: boolean
+                  active:
+                    type: boolean
+                required:
+                  - pending
+                  - active
+              examples: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+      description: Returns the status of the app that made the request.
+      security:
+        - token: []
+  '/report/{reportId}':
+    parameters:
+      - schema:
+          type: string
+        name: reportId
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisReport'
+              examples:
+                example-1:
+                  value:
+                    id: 0
+                    analysis:
+                      uuid: string
+                    startTime: '2019-08-24T14:15:22Z'
+                    finishTime: '2019-08-24T14:15:22Z'
+                    policyAnalysisReports:
+                      - report:
+                          - null
+                        policyAnalysis:
+                          name: string
+                    error: string
+      operationId: get-report-reportId
+  /app/activate:
+    parameters: []
+    post:
+      summary: ''
+      operationId: post-app-activate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+      description: App activation endpoint.
+  /app/deactivate:
+    post:
+      summary: ''
+      operationId: post-app-deactivate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+      security:
+        - token: []
+      description: App deactivation endpoint.
+  /app/register:
+    post:
+      summary: ''
+      operationId: post-app-register
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  status:
+                    type: string
+                required:
+                  - token
+                  - status
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+      description: App register endpoint.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              properties:
+                active:
+                  type: boolean
+                reportCallbackURI:
+                  type: string
+                  minLength: 1
+                certificate:
+                  type: string
+                  minLength: 1
+                token:
+                  type: string
+                  minLength: 1
+                key:
+                  type: string
+              required:
+                - active
+                - reportCallbackURI
+                - certificate
+                - token
+                - key
+  /app/unregister:
+    post:
+      summary: ''
+      operationId: post-app-unregister
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+      security:
+        - token: []
+      description: |-
+        App unregister endpoint. 
+        TODO: Delete or secure this endpoint. An app shouldn't have direct access to unregister itself.
+      deprecated: true
+components:
+  schemas:
+    Analysis:
+      title: Analysis
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        targetSystemId:
+          type: integer
+          format: int64
+        policyAnalyses:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyAnalysis'
+        lastInvocation:
+          type: string
+          format: date-time
+        lastFinish:
+          type: string
+          format: date-time
+        analysisReports:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                format: int64
+    App:
+      title: App
+      type: object
+      description: ''
+      properties:
+        key:
+          type: string
+        active:
+          type: boolean
+        reportCallbackURI:
+          type: string
+        pending:
+          type: boolean
+        certificate:
+          type: string
+        token:
+          type: string
+        currentAnalyses:
+          type: array
+          items:
+            type: object
+      required:
+        - key
+        - active
+        - reportCallbackURI
+        - certificate
+      x-examples: {}
+    PostAnalysis:
+      title: PostAnalysis
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        targetSystemId:
+          type: integer
+          format: int64
+        policyAnalyses:
+          type: array
+          items:
+            type: string
+            format: uri
+      required:
+        - uuid
+        - targetSystemId
+        - policyAnalyses
+    AnalysisReport:
+      title: AnalysisReport
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        analysis:
+          type: object
+          properties:
+            uuid:
+              type: string
+        startTime:
+          type: string
+          format: date-time
+        finishTime:
+          type: string
+          format: date-time
+        policyAnalysisReports:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyAnalysisReport'
+        error:
+          type: string
+    PolicyAnalysisReport:
+      title: PolicyAnalysisReport
+      type: object
+      x-examples: {}
+      properties:
+        report:
+          type: array
+          items: {}
+        policyAnalysis:
+          type: object
+          properties:
+            name:
+              type: string
+    PolicyAnalysis:
+      title: PolicyAnalysis
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        link:
+          type: string
+        query:
+          type: string
+  securitySchemes:
+    token:
+      type: http
+      scheme: bearer
+      description: JWT token

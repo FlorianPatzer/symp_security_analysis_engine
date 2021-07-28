@@ -1,0 +1,91 @@
+include:
+  - remote: https://ci-templates.k8s.ilt-dmz.iosb.fraunhofer.de/templates/gitlab-ci-common.yml
+
+variables:
+  DOCKER_HOST: tcp://localhost:2375
+
+services:
+  - docker:18.09-dind
+
+default:
+  tags:
+    - ILT
+
+cache:
+  paths:
+    - .m2/repository
+    - .npm/
+
+stages:
+    - build
+    - initial tests
+    - unit tests
+    - integration tests
+    
+
+App Tests:
+    image: maven:3-openjdk-11-slim
+    stage: unit tests
+    before_script:
+        - curl -sL https://deb.nodesource.com/setup_14.x | bash -
+        - apt-get install --no-install-recommends -y nodejs
+    script: 
+        - mvn test -Dspring.profiles.active=gitlab -Dtest=AppTests
+
+Analysis Tests:
+    image: maven:3-openjdk-11-slim
+    stage: unit tests
+    before_script:
+        - curl -sL https://deb.nodesource.com/setup_14.x | bash -
+        - apt-get install --no-install-recommends -y nodejs
+    script: 
+        - mvn test -Dspring.profiles.active=gitlab -Dtest=AnalysisTests
+
+Initial Tests:
+    image: maven:3-openjdk-11-slim
+    stage: initial tests
+    before_script:
+        - curl -sL https://deb.nodesource.com/setup_14.x | bash -
+        - apt-get install --no-install-recommends -y nodejs
+    script: 
+        - mvn test -Dspring.profiles.active=gitlab -Dtest=InitialTests
+
+sae-master:
+  image: docker
+  stage: build
+  variables:
+    DOCKER_FILE_PATH: ./
+    DOCKER_IMAGE_SUBPROJECT: /sae
+  extends:
+    - .docker-build-master
+  when: manual
+
+sae-branch:
+  image: docker
+  stage: build
+  variables:
+    DOCKER_FILE_PATH: ./
+    DOCKER_IMAGE_SUBPROJECT: /sae
+  extends:
+    - .docker-build-branch
+  when: manual
+
+sae-fuseki-master:
+  image: docker
+  stage: build
+  variables:
+    DOCKER_FILE_PATH: ./fuseki/
+    DOCKER_IMAGE_SUBPROJECT: /fuseki
+  extends:
+    - .docker-build-master
+  when: manual
+
+sae-fuseki-branch:
+  image: docker
+  stage: build
+  variables:
+    DOCKER_FILE_PATH: ./fuseki/
+    DOCKER_IMAGE_SUBPROJECT: /fuseki
+  extends:
+    - .docker-build-branch
+  when: manual

@@ -1,0 +1,21 @@
+{
+  "id": "95dfd1c6-6bb8-11eb-b357-0242ac130002",
+  "businessKey": null,
+  "processDefinitionId": "778e1f16-6bb4-11eb-b357-0242ac130002",
+  "processDefinitionKey": "Policy_Analysis_DYNAMICKEY_Analysis",
+  "processDefinitionName": null,
+  "processDefinitionVersion": 1,
+  "startTime": "2021-02-10T15:56:49.757+0000",
+  "endTime": null,
+  "removalTime": null,
+  "durationInMillis": null,
+  "startUserId": null,
+  "startActivityId": "Start",
+  "deleteReason": null,
+  "rootProcessInstanceId": "95dfd1c6-6bb8-11eb-b357-0242ac130002",
+  "superProcessInstanceId": null,
+  "superCaseInstanceId": null,
+  "caseInstanceId": null,
+  "tenantId": null,
+  "state": "COMPLETED"
+}

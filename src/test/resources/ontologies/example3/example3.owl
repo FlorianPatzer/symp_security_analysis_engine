@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="https://iosb.fraunhofer.de/ICS-Security/example3#"
+     xml:base="https://iosb.fraunhofer.de/ICS-Security/example3"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:policy-based-analysis="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#">
+    <owl:Ontology rdf:about="https://iosb.fraunhofer.de/ICS-Security/example3">
+        <owl:imports rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis/0.1.0"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/example3#Impl1 -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/example3#Impl1">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingModule"/>
+        <policy-based-analysis:dependsOn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/example3#1_OntologyDependency"/>
+        <policy-based-analysis:hasTopic rdf:resource="https://iosb.fraunhofer.de/ICS-Security/example3#TestTopic"/>
+        <policy-based-analysis:isIn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#StaticKnowledgeExtension"/>
+        <policy-based-analysis:moduleType rdf:resource="https://iosb.fraunhofer.de/ICS-Security/example3#Python_External_Worker"/>
+        <policy-based-analysis:imageName>testworker</policy-based-analysis:imageName>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/example3#Impl2 -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/example3#Impl2">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlRule"/>
+        <policy-based-analysis:dependsOn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/example3#Impl1"/>
+        <policy-based-analysis:dependsOn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/example3#1_OntologyDependency"/>
+        <policy-based-analysis:hasTopic rdf:resource="https://iosb.fraunhofer.de/ICS-Security/example3#Swrl_Topic"/>
+        <policy-based-analysis:isIn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#StaticKnowledgeExtension"/>
+        <policy-based-analysis:rule>sysont:Person(?x1) -&gt; o1:Mensch(?x1)</policy-based-analysis:rule>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/example3#Impl4 -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/example3#Impl4">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlRule"/>
+        <policy-based-analysis:hasTopic rdf:resource="https://iosb.fraunhofer.de/ICS-Security/example3#Swrl_Topic"/>
+        <policy-based-analysis:isIn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#DynamicKnowledgeExtension"/>
+        <policy-based-analysis:rule>sysont:hasParent(?x1,?x2) ^ sysont:hasBrother(?x2,?x3) -&gt; sysont:hasUncle(?x1,?x3)</policy-based-analysis:rule>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/example3#Impl5 -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/example3#Impl5">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlRule"/>
+        <policy-based-analysis:dependsOn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/example3#Impl2"/>
+        <policy-based-analysis:dependsOn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/example3#Impl4"/>
+        <policy-based-analysis:hasTopic rdf:resource="https://iosb.fraunhofer.de/ICS-Security/example3#Swrl_Topic"/>
+        <policy-based-analysis:isIn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Analysis"/>
+        <policy-based-analysis:rule>o1:Mensch(?x1) ^ sysont:hasUncle(?x1, ?x2) -&gt; o1:uberMensch(?x1)</policy-based-analysis:rule>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/example3#Jena_Topic -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/example3#Jena_Topic">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Topic"/>
+        <policy-based-analysis:description>is the jena topic</policy-based-analysis:description>
+        <policy-based-analysis:name>jena</policy-based-analysis:name>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/example3#Python_External_Worker -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/example3#Python_External_Worker">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ModuleType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/example3#Swrl_Topic -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/example3#Swrl_Topic">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Topic"/>
+        <policy-based-analysis:description>is the swrl topic</policy-based-analysis:description>
+        <policy-based-analysis:name>swrl</policy-based-analysis:name>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/example3#TestTopic -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/example3#TestTopic">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Topic"/>
+        <policy-based-analysis:description>this is a test topic</policy-based-analysis:description>
+        <policy-based-analysis:name>test-topic</policy-based-analysis:name>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/example3#quer -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/example3#quer">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#AnalyticQuery"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/example3#1_OntologyDependency -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/example3#1_OntologyDependency">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#OntologyDependency"/>
+        <policy-based-analysis:prefix>o1</policy-based-analysis:prefix>
+        <policy-based-analysis:uri rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">https://example.org/o1</policy-based-analysis:uri>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+

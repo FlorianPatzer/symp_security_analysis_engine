@@ -1,0 +1,172 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:pba="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <owl:Ontology rdf:about="https://iosb.fraunhofer.de/ICS-Security/test/Config_Analysis_Example_Ontology">
+    <owl:imports rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis/0.1.0"/>
+  </owl:Ontology>
+  <pba:Policy rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#Config_Analysis_Example">
+    <pba:requires>
+      <pba:SwrlRule rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#Label_Conflicts">
+        <pba:rule>:AllowedTcpFlow(?atf)^:DisallowedTcpFlow(?dtf)^
+:AllowedIpV4Flow(?aif)^:DisallowedIpV4Flow(?dif)^
+:usesFlow(?atf, ?aif)^:usesFlow(?dtf, ?dif)^
+:srcNetwork(?aif, ?srcNet)^:srcNetwork(?dif, ?srcNet)^
+:dstNetwork(?aif, ?dstNet)^:dstNetwork(?dif, ?dstNet)^
+:portRange(?atf, ?aPR)^:portRange(?dtf, ?dPR)^
+:overlapsWith(?aPR, ?dPR)-&gt;:inConflictWith(?dtf, ?atf)</pba:rule>
+        <pba:dependsOn>
+          <pba:ProcessingRule rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#Label_Overlapping_Flows_Src">
+            <pba:dependsOn>
+              <pba:Implementation rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#Further_Connect_Flows_to_Network">
+                <pba:dependsOn>
+                  <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#Effective_Configuration_pfSense">
+                    <pba:dependsOn>
+                      <pba:SwrlRule rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#Prepare_pfSense_Rules">
+                        <pba:dependsOn>
+                          <pba:Implementation rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#SWRL_Task_Collection">
+                            <pba:dependsOn>
+                              <pba:Implementation rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#Merge_Redundant_Netwoks_and_Build_Network_Hierarchy">
+                                <pba:dependsOn>
+                                  <pba:ProcessingModule rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#x2owl">
+                                    <pba:description>config to owl</pba:description>
+                                    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+                                    <pba:isIn>
+                                      <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#KnowledgeCollection">
+                                        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+                                      </owl:NamedIndividual>
+                                    </pba:isIn>
+                                    <pba:hasTopic>
+                                      <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#X2owltopic">
+                                        <pba:description>topic for x2owl worker</pba:description>
+                                        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Topic"/>
+                                        <pba:name>x2owl-worker</pba:name>
+                                      </owl:NamedIndividual>
+                                    </pba:hasTopic>
+                                    <pba:imageName>x2owl-worker</pba:imageName>
+                                    <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation"/>
+                                  </pba:ProcessingModule>
+                                </pba:dependsOn>
+                                <pba:isIn>
+                                  <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#KnowledgeFusionAndModelCleaning">
+                                    <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+                                  </owl:NamedIndividual>
+                                </pba:isIn>
+                                <pba:hasTopic>
+                                  <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlTopic">
+                                    <pba:name>swrl</pba:name>
+                                    <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Topic"/>
+                                    <pba:description>Topic for swrl rule implementations</pba:description>
+                                  </owl:NamedIndividual>
+                                </pba:hasTopic>
+                                <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlRule"/>
+                                <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingRule"/>
+                                <pba:rule>ICS-Security:Network(?n1)^ICS-Security:Network(?n2)^ICS-Security:prefixBits(?n1,?pb1)^ICS-Security:prefixBits(?n2, ?pb2)^swrlb:equal(?pb1, ?pb2)^ICS-Security:ipV4Address(?n1, ?a1)^ICS-Security:ipV4Address(?n2, ?a2)^swrlb:equal(?a1, ?a2)-&gt;sameAs(?n1, ?n2)</pba:rule>
+                                <pba:description>Merge Redundant Netwoks and Build Network Hierarchy</pba:description>
+                                <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+                              </pba:Implementation>
+                            </pba:dependsOn>
+                            <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+                            <pba:description>SWRL Task Collection</pba:description>
+                            <pba:rule>ICS-Security:Asset(?a) ^ ICS-Security:Network(?n) ^ ICS-Security:IpV4Interface(?i) ^ ICS-Security:isInNetwork(?i, ?n)^ICS-Security:interface(?a,?i) -&gt; ICS-Security:isInNetwork(?a, ?n)</pba:rule>
+                            <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlRule"/>
+                            <pba:isIn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#KnowledgeFusionAndModelCleaning"/>
+                            <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingRule"/>
+                            <pba:hasTopic rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlTopic"/>
+                          </pba:Implementation>
+                        </pba:dependsOn>
+                        <pba:description>Prepare pfSense Rules</pba:description>
+                        <pba:rule>ICS-Security:PfConfiguration(?config)^ICS-Security:containsRule(?config,?firstRule)^ICS-Security:pfNextRule(?firstRule, ?secondRule)-&gt;ICS-Security:containsRule(?config, ?secondRule)</pba:rule>
+                        <pba:hasTopic rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlTopic"/>
+                        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+                        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation"/>
+                        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingRule"/>
+                        <pba:isIn>
+                          <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#StaticKnowledgeExtension">
+                            <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+                          </owl:NamedIndividual>
+                        </pba:isIn>
+                      </pba:SwrlRule>
+                    </pba:dependsOn>
+                    <pba:description>Effective Configuration pfSense</pba:description>
+                    <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingModule"/>
+                    <pba:imageName>fec</pba:imageName>
+                    <pba:hasTopic>
+                      <pba:Topic rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#pfSenseTopic">
+                        <pba:description>topic for effektive configuration pfsense worker</pba:description>
+                        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+                        <pba:name>pfsense_effective_config</pba:name>
+                      </pba:Topic>
+                    </pba:hasTopic>
+                    <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation"/>
+                    <pba:isIn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#StaticKnowledgeExtension"/>
+                  </owl:NamedIndividual>
+                </pba:dependsOn>
+                <pba:rule>:AllowedIpV4Flow(?aif)^:srcNetwork(?aif, ?srcNet)^:parentNetwork(?subNet, ?srcNet)^:srcNetwork(?aif, ?subNet)</pba:rule>
+                <pba:hasTopic rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlTopic"/>
+                <pba:description>Further Connect Flows to Network</pba:description>
+                <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlRule"/>
+                <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingRule"/>
+                <pba:isIn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#StaticKnowledgeExtension"/>
+                <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+              </pba:Implementation>
+            </pba:dependsOn>
+            <pba:isIn>
+              <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#DynamicKnowledgeExtension">
+                <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+              </owl:NamedIndividual>
+            </pba:isIn>
+            <pba:description>Label Overlapping Flows Source</pba:description>
+            <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation"/>
+            <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlRule"/>
+            <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+            <pba:rule>:AllowedTcpFlow(?atf)^:DisallowedTcpFlow(?dtf)^:srcPortRange(?atf, ?aSrcPR)^:srcPortRange(?dtf, ?dSrcPR)^:maxPort(?aSrcPR, ?aSrcPMax)^:minPort(?dSrcPR, ?dSrcPMin)^:minPort(?aSrcPR, ?aSrcPMin)^:maxPort(?dSrcPR, ?dSrcPMax)^swrlb:lessThanOrEqual(?aSrcPMax, ?dSrcPMin)^swrlb:lessThanOrEqual(?aSrcPMin, ?dSrcPMax)-&gt;:overlapsWith(?dSrcPR, ?aSrcPR)</pba:rule>
+            <pba:hasTopic rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlTopic"/>
+          </pba:ProcessingRule>
+        </pba:dependsOn>
+        <pba:isIn>
+          <pba:Phase rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Analysis">
+            <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+          </pba:Phase>
+        </pba:isIn>
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingRule"/>
+        <pba:hasTopic rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlTopic"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+        <pba:dependsOn>
+          <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#Label_Overlapping_Flows_Dst">
+            <pba:dependsOn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/test#Further_Connect_Flows_to_Network"/>
+            <pba:description>Label Overlapping Flows Destination</pba:description>
+            <pba:isIn rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#DynamicKnowledgeExtension"/>
+            <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingRule"/>
+            <pba:rule>:AllowedTcpFlow(?atf)^:DisallowedTcpFlow(?dtf)^:dstPortRange(?atf, ?aDstPR)^:dstPortRange(?dtf, ?dDstPR)^:maxPort(?aDstPR, ?aDstPMax)^:minPort(?dDstPR, ?dDstPMin)^:minPort(?aDstPR, ?aDstPMin)^:maxPort(?dDstPR, ?dDstPMax)^swrlb:lessThanOrEqual(?aDstPMax, ?dDstPMin)^swrlb:lessThanOrEqual(?aDstPMin, ?dDstPMax)-&gt;:overlapsWith(?dDstPR, ?aDstPR)</pba:rule>
+            <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation"/>
+            <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlRule"/>
+            <pba:hasTopic rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlTopic"/>
+          </owl:NamedIndividual>
+        </pba:dependsOn>
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation"/>
+        <pba:description>Label Conflicts</pba:description>
+      </pba:SwrlRule>
+    </pba:requires>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <pba:analyzedBy>
+      <pba:AnalyticQuery rdf:about="https://iosb.fraunhofer.de/ICS-Security/test#Config_Analysis_Query">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+        <pba:query>PREFIX : &lt;http://iosb.fraunhofer.de/ICS-Security#&gt;
+SELECT ?firewall1 ?firewall2 ?f1 ?f2 WHERE {
+    ?firewall1 :firewallConfig ?config1.
+    ?config1 :flow ?f1.
+    ?firewall2 :firewallConfig ?config2.
+    ?config2 :flow ?f2.
+    ?tcpFlow1 :usesFlow ?f1.
+    ?tcpFlow2 :usesFlow ?f2.
+    ?tcpFlow1 :inConflictWith ?tcpFlow2.
+}</pba:query>
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Query"/>
+      </pba:AnalyticQuery>
+    </pba:analyzedBy>
+    <pba:description>Config Analysis Example description</pba:description>
+  </pba:Policy>
+</rdf:RDF>

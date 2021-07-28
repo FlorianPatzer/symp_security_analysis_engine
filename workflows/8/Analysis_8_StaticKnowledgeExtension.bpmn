@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<definitions xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="definitions_f3bdf11d-ff99-45f7-88ea-4fded1cda259" targetNamespace="http://bpmn.io/schema/bpmn" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL">
+  <process id="Analysis_8_StaticKnowledgeExtension" isExecutable="true">
+    <startEvent id="Start" name="StartEvent">
+      <outgoing>sequenceFlow_1b6b2017-76b1-468b-974c-f4311a0d5514</outgoing>
+    </startEvent>
+    <serviceTask camunda:topic="ontupload" camunda:type="external" id="serviceUpload" name="Initial Ontology Upload Task">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property id="fraunhofer-type" name="type" value="ONTUPLOAD"/>
+        </camunda:properties>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="System_Model_Output_Ontology">ftp://ftp/upload/ServiceTask_0xx9o1j.owl</camunda:inputParameter>
+        </camunda:inputOutput>
+      </extensionElements>
+      <incoming>sequenceFlow_1b6b2017-76b1-468b-974c-f4311a0d5514</incoming>
+      <outgoing>sequenceFlow_2ba28be4-a51a-4374-9ebd-eef6ae667852</outgoing>
+    </serviceTask>
+    <sequenceFlow id="sequenceFlow_1b6b2017-76b1-468b-974c-f4311a0d5514" sourceRef="Start" targetRef="serviceUpload"/>
+    <serviceTask camunda:topic="swrl" camunda:type="external" id="ServiceTask_1" name="Rule Merge: Merge_Redundant_Netwoks_and_Build_Network_Hierarchy_Prepare_pfSense_Rules_Build_Network_Hierarchy">
+      <extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="Rule_0">ICS-Security:Network(?n1)^ICS-Security:Network(?n2)^ICS-Security:prefixBits(?n1,?pb1)^ICS-Security:prefixBits(?n2, ?pb2)^swrlb:equal(?pb1, ?pb2)^ICS-Security:ipV4Address(?n1, ?a1)^ICS-Security:ipV4Address(?n2, ?a2)^swrlb:equal(?a1, ?a2)-&gt;sameAs(?n1, ?n2)</camunda:inputParameter>
+          <camunda:inputParameter name="Rule_1">ICS-Security:PfConfiguration(?config)^ICS-Security:containsRule(?config,?firstRule)^ICS-Security:pfNextRule(?firstRule, ?secondRule)-&gt;ICS-Security:containsRule(?config, ?secondRule)</camunda:inputParameter>
+          <camunda:inputParameter name="Rule_2">ICS-Security:Network(?n1)
+^ ICS-Security:Network(?n2)
+^ ICS-Security:ipV4Address(?n1, ?na1)
+^ ICS-Security:ipV4Address(?n2, ?na2)
+^ ICS-Security:prefixBits(?n1, ?np1)
+^ ICS-Security:prefixBits(?n2, ?np2)
+^ swrlb:lessThan(?np2, ?np1)
+^ swrlb:subtract(?diff, ?np1, ?np2)
+^ swrlb:pow(?divisor, 2, ?diff)
+^ swrlb:divide(?res1, ?na1, ?divisor) ^ swrlb:equal(?na2, ?res1) -&gt; ICS-Security:subnet(?n2, ?n1)</camunda:inputParameter>
+        </camunda:inputOutput>
+        <camunda:properties>
+          <camunda:property id="fraunhofer-type" name="type" value="SWRL"/>
+        </camunda:properties>
+      </extensionElements>
+      <incoming>sequenceFlow_2ba28be4-a51a-4374-9ebd-eef6ae667852</incoming>
+      <outgoing>sequenceFlow_52ea254d-a001-4d4b-b359-90a3104df4d9</outgoing>
+    </serviceTask>
+    <sequenceFlow id="sequenceFlow_2ba28be4-a51a-4374-9ebd-eef6ae667852" sourceRef="serviceUpload" targetRef="ServiceTask_1"/>
+    <serviceTask camunda:topic="swrl" camunda:type="external" id="ServiceTask_2" name="Rule Merge: Add_Assets_to_Network_Create_Relations_to_Parent_Networks">
+      <extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="Rule_0">ICS-Security:Asset(?a) ^ ICS-Security:Network(?n) ^ ICS-Security:IpV4Interface(?i) ^ ICS-Security:isInNetwork(?i, ?n)^ICS-Security:interface(?a,?i) -&gt; ICS-Security:isInNetwork(?a, ?n)</camunda:inputParameter>
+          <camunda:inputParameter name="Rule_1">ICS-Security:IpV4Interface(?i) ^ ICS-Security:isInNetwork(?i, ?n)^ICS-Security:parentNetwork(?n,?pn) -&gt; ICS-Security:isInNetwork(?i, ?pn)</camunda:inputParameter>
+        </camunda:inputOutput>
+        <camunda:properties>
+          <camunda:property id="fraunhofer-type" name="type" value="SWRL"/>
+        </camunda:properties>
+      </extensionElements>
+      <incoming>sequenceFlow_52ea254d-a001-4d4b-b359-90a3104df4d9</incoming>
+      <outgoing>sequenceFlow_e03bbbfa-82ad-44c2-9bf1-668794699006</outgoing>
+    </serviceTask>
+    <sequenceFlow id="sequenceFlow_52ea254d-a001-4d4b-b359-90a3104df4d9" sourceRef="ServiceTask_1" targetRef="ServiceTask_2"/>
+    <serviceTask camunda:topic="pfsense_effective_config" camunda:type="external" id="ServiceTask_3" name="Create_PfSense_Effective_Configuration">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property id="fraunhofer-type" name="type" value="PROCESSINGMODULE"/>
+        </camunda:properties>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="ImageName">fec</camunda:inputParameter>
+        </camunda:inputOutput>
+      </extensionElements>
+      <incoming>sequenceFlow_e03bbbfa-82ad-44c2-9bf1-668794699006</incoming>
+      <outgoing>sequenceFlow_dc051bdf-4994-40b0-b439-002f5842930f</outgoing>
+    </serviceTask>
+    <sequenceFlow id="sequenceFlow_e03bbbfa-82ad-44c2-9bf1-668794699006" sourceRef="ServiceTask_2" targetRef="ServiceTask_3"/>
+    <serviceTask camunda:topic="swrl" camunda:type="external" id="ServiceTask_4" name="Further_Connect_Flows_to_Network">
+      <extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="Rule">:AllowedIpV4Flow(?aif)^:srcNetwork(?aif, ?srcNet)^:parentNetwork(?subNet, ?srcNet)-&gt;:srcNetwork(?aif, ?subNet)</camunda:inputParameter>
+        </camunda:inputOutput>
+        <camunda:properties>
+          <camunda:property id="fraunhofer-type" name="type" value="SWRL"/>
+        </camunda:properties>
+      </extensionElements>
+      <incoming>sequenceFlow_dc051bdf-4994-40b0-b439-002f5842930f</incoming>
+      <outgoing>sequenceFlow_c084e217-fd7a-4912-aa89-adf08b546ea0</outgoing>
+    </serviceTask>
+    <sequenceFlow id="sequenceFlow_dc051bdf-4994-40b0-b439-002f5842930f" sourceRef="ServiceTask_3" targetRef="ServiceTask_4"/>
+    <endEvent id="End" name="End">
+      <incoming>sequenceFlow_c084e217-fd7a-4912-aa89-adf08b546ea0</incoming>
+    </endEvent>
+    <sequenceFlow id="sequenceFlow_c084e217-fd7a-4912-aa89-adf08b546ea0" sourceRef="ServiceTask_4" targetRef="End"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_9d28dc4c-9111-4438-b29a-67d01e1b7647">
+    <bpmndi:BPMNPlane bpmnElement="Analysis_8_StaticKnowledgeExtension" id="BPMNPlane_b32a0f54-e263-489d-9903-51b3998b3f47">
+      <bpmndi:BPMNShape bpmnElement="Start" id="BPMNShape_b81ffda2-57d1-4aa0-b07a-adc2a41fdbe2">
+        <dc:Bounds height="36.0" width="36.0" x="100.0" y="100.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="serviceUpload" id="BPMNShape_551c28ea-e122-4395-b391-1b9e1fb59aeb">
+        <dc:Bounds height="80.0" width="100.0" x="186.0" y="78.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow_1b6b2017-76b1-468b-974c-f4311a0d5514" id="BPMNEdge_a273ca9f-83e7-4305-83e4-9f9483a2bc69">
+        <di:waypoint x="136.0" y="118.0"/>
+        <di:waypoint x="186.0" y="118.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape bpmnElement="ServiceTask_1" id="BPMNShape_ffb1286b-c713-470f-8388-e2a99b9955dc">
+        <dc:Bounds height="80.0" width="100.0" x="336.0" y="78.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow_2ba28be4-a51a-4374-9ebd-eef6ae667852" id="BPMNEdge_0d8141a7-0703-4126-b13e-6d3b5891187c">
+        <di:waypoint x="286.0" y="118.0"/>
+        <di:waypoint x="336.0" y="118.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape bpmnElement="ServiceTask_2" id="BPMNShape_8522ec32-9dda-4a1b-bf03-402ae024ba7b">
+        <dc:Bounds height="80.0" width="100.0" x="486.0" y="78.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow_52ea254d-a001-4d4b-b359-90a3104df4d9" id="BPMNEdge_f2617f9a-2d95-4163-837b-3114b4ccffb4">
+        <di:waypoint x="436.0" y="118.0"/>
+        <di:waypoint x="486.0" y="118.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape bpmnElement="ServiceTask_3" id="BPMNShape_29029003-dc2f-4fa8-8062-6fa89656a1dc">
+        <dc:Bounds height="80.0" width="100.0" x="636.0" y="78.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow_e03bbbfa-82ad-44c2-9bf1-668794699006" id="BPMNEdge_23900e58-8e6a-471f-bd3b-c04450934f56">
+        <di:waypoint x="586.0" y="118.0"/>
+        <di:waypoint x="636.0" y="118.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape bpmnElement="ServiceTask_4" id="BPMNShape_23cfd2c4-fe7e-427a-8e75-cb1089bad875">
+        <dc:Bounds height="80.0" width="100.0" x="786.0" y="78.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow_dc051bdf-4994-40b0-b439-002f5842930f" id="BPMNEdge_16059a76-0d79-4a08-9c10-7d657698d7bd">
+        <di:waypoint x="736.0" y="118.0"/>
+        <di:waypoint x="786.0" y="118.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape bpmnElement="End" id="BPMNShape_5d693d0e-92ec-465a-83a2-f37003ed8d3f">
+        <dc:Bounds height="36.0" width="36.0" x="936.0" y="100.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow_c084e217-fd7a-4912-aa89-adf08b546ea0" id="BPMNEdge_ba09d5f1-56c0-43d9-8cae-a00447a7bdbe">
+        <di:waypoint x="886.0" y="118.0"/>
+        <di:waypoint x="936.0" y="118.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

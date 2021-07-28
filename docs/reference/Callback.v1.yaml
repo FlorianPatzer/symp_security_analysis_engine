@@ -1,0 +1,40 @@
+openapi: 3.0.0
+info:
+  title: Callback
+  version: '1.0'
+servers:
+  - url: 'http://callbackuri'
+paths:
+  /callbackuri:
+    parameters: []
+    post:
+      summary: ''
+      operationId: post-callbackuri
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+            examples:
+              example-1:
+                value:
+                  analysisUuid: string
+                  reportId: 0
+components:
+  schemas:
+    Notification:
+      title: Notification
+      type: object
+      properties:
+        analysisUuid:
+          type: string
+        reportId:
+          type: integer
+          format: int64
+      x-examples:
+        example-1:
+          analysisUuid: string
+          reportId: 0

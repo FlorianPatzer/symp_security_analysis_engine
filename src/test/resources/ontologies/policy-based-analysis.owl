@@ -1,0 +1,459 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#"
+     xml:base="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis">
+        <owl:versionIRI rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis/0.1.0"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#analyzedBy -->
+
+    <owl:ObjectProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#analyzedBy">
+        <rdfs:domain rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Policy"/>
+        <rdfs:range rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#PolicyImplementation"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#contains -->
+
+    <owl:ObjectProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#contains">
+        <rdfs:domain rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#PolicyImplementation"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#dependsOn -->
+
+    <owl:ObjectProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#dependsOn">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#hasTopic -->
+
+    <owl:ObjectProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#hasTopic">
+        <rdfs:domain rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation"/>
+        <rdfs:range rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Topic"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#isIn -->
+
+    <owl:ObjectProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#isIn">
+        <rdfs:domain rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation"/>
+        <rdfs:range rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#moduleType -->
+
+    <owl:ObjectProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#moduleType">
+        <rdfs:domain rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingModule"/>
+        <rdfs:range rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ModuleType"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#description -->
+
+    <owl:DatatypeProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#description">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#downloadLink -->
+
+    <owl:DatatypeProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#downloadLink">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#imageName -->
+
+    <owl:DatatypeProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#imageName">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#name -->
+
+    <owl:DatatypeProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#name">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#prefix -->
+
+    <owl:DatatypeProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#prefix">
+        <rdfs:domain rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#OntologyDependency"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#query -->
+
+    <owl:DatatypeProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#query">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#rule -->
+
+    <owl:DatatypeProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#rule">
+        <rdfs:domain rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingRule"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#uri -->
+
+    <owl:DatatypeProperty rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#uri">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#AnalyticQuery -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#AnalyticQuery">
+        <rdfs:subClassOf rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Query"/>
+    </owl:Class>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#hasTopic"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Topic"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#isIn"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#description"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#JenaRule -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#JenaRule">
+        <rdfs:subClassOf rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingRule"/>
+    </owl:Class>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#LabelQuery -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#LabelQuery">
+        <rdfs:subClassOf rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Query"/>
+    </owl:Class>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ModuleType -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ModuleType"/>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#OntologyDependency -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#OntologyDependency">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#downloadLink"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#prefix"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#uri"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Policy -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Policy">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#description"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#PolicyImplementation -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#PolicyImplementation">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#contains"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Query"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#description"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingModule -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingModule">
+        <rdfs:subClassOf rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#moduleType"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ModuleType"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#imageName"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingRule -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingRule">
+        <rdfs:subClassOf rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Implementation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#rule"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Query -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Query">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#query"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlRule -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlRule">
+        <rdfs:subClassOf rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ProcessingRule"/>
+    </owl:Class>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Topic -->
+
+    <owl:Class rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Topic">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#description"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#name"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Analysis -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Analysis">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#AnyPhase -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#AnyPhase">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#DynamicKnowledgeExtension -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#DynamicKnowledgeExtension">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#JenaTopic -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#JenaTopic">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Topic"/>
+        <description>Topic for jena rule implementations</description>
+        <name>jena</name>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#KnowledgeCollection -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#KnowledgeCollection">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#KnowledgeFusion -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#KnowledgeFusion">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ModelCleaning -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#ModelCleaning">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#StaticKnowledgeExtension -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#StaticKnowledgeExtension">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Phase"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlTopic -->
+
+    <owl:NamedIndividual rdf:about="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#SwrlTopic">
+        <rdf:type rdf:resource="https://iosb.fraunhofer.de/ICS-Security/policy-based-analysis#Topic"/>
+        <description>Topic for swrl rule implementations</description>
+        <name>swrl</name>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+

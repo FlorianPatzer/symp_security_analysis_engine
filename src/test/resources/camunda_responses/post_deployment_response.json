@@ -1,0 +1,67 @@
+{
+  "links": [
+    {
+      "method": "GET",
+      "href": "http://localhost:8080/engine-rest/deployment/7784a932-6bb4-11eb-b357-0242ac130002",
+      "rel": "self"
+    }
+  ],
+  "id": "7784a932-6bb4-11eb-b357-0242ac130002",
+  "name": "Testanalyse_Test",
+  "source": null,
+  "deploymentTime": "2021-02-10T15:27:20.840+0000",
+  "tenantId": null,
+  "deployedProcessDefinitions": {
+    "778e1f16-6bb4-11eb-b357-0242ac130002": {
+      "id": "778e1f16-6bb4-11eb-b357-0242ac130002",
+      "key": "Policy_Analysis_DYNAMICKEY_Analysis",
+      "category": "http://bpmn.io/schema/bpmn",
+      "description": null,
+      "name": null,
+      "version": 1,
+      "resource": "Policy_Analysis_DYNAMICKEY_Analysis.bpmn",
+      "deploymentId": "7784a932-6bb4-11eb-b357-0242ac130002",
+      "diagram": null,
+      "suspended": false,
+      "tenantId": null,
+      "versionTag": null,
+      "historyTimeToLive": null,
+      "startableInTasklist": true
+    },
+    "778e4627-6bb4-11eb-b357-0242ac130002": {
+      "id": "778e4627-6bb4-11eb-b357-0242ac130002",
+      "key": "Policy_Analysis_DYNAMICKEY_DynamicKnowledgeExtension",
+      "category": "http://bpmn.io/schema/bpmn",
+      "description": null,
+      "name": null,
+      "version": 1,
+      "resource": "Policy_Analysis_DYNAMICKEY_DynamicKnowledgeExtension.bpmn",
+      "deploymentId": "7784a932-6bb4-11eb-b357-0242ac130002",
+      "diagram": null,
+      "suspended": false,
+      "tenantId": null,
+      "versionTag": null,
+      "historyTimeToLive": null,
+      "startableInTasklist": true
+    },
+    "778e4628-6bb4-11eb-b357-0242ac130002": {
+      "id": "778e4628-6bb4-11eb-b357-0242ac130002",
+      "key": "Policy_Analysis_DYNAMICKEY_StaticKnowledgeExtension",
+      "category": "http://bpmn.io/schema/bpmn",
+      "description": null,
+      "name": null,
+      "version": 1,
+      "resource": "Policy_Analysis_DYNAMICKEY_StaticKnowledgeExtension.bpmn",
+      "deploymentId": "7784a932-6bb4-11eb-b357-0242ac130002",
+      "diagram": null,
+      "suspended": false,
+      "tenantId": null,
+      "versionTag": null,
+      "historyTimeToLive": null,
+      "startableInTasklist": true
+    }
+  },
+  "deployedCaseDefinitions": null,
+  "deployedDecisionDefinitions": null,
+  "deployedDecisionRequirementsDefinitions": null
+}

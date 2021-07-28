@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<definitions xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="definitions_e6fa269a-97d8-4462-84cd-1d672b144734" targetNamespace="http://bpmn.io/schema/bpmn" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL">
+  <process id="Analysis_8_DynamicKnowledgeExtension" isExecutable="true">
+    <startEvent id="Start" name="StartEvent">
+      <outgoing>sequenceFlow_83b9788f-7f33-4bb4-8099-c88c6293bab4</outgoing>
+    </startEvent>
+    <serviceTask camunda:topic="ontupload" camunda:type="external" id="serviceUpload" name="Initial Ontology Upload Task">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property id="fraunhofer-type" name="type" value="ONTUPLOAD"/>
+        </camunda:properties>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="StaticKnowledgeExtension_Output_Ontology">ftp://localhost/upload/ServiceTask_4.owl</camunda:inputParameter>
+        </camunda:inputOutput>
+      </extensionElements>
+      <incoming>sequenceFlow_83b9788f-7f33-4bb4-8099-c88c6293bab4</incoming>
+      <outgoing>sequenceFlow_e7972c8f-de17-4c91-882a-00325d9b2ff2</outgoing>
+    </serviceTask>
+    <sequenceFlow id="sequenceFlow_83b9788f-7f33-4bb4-8099-c88c6293bab4" sourceRef="Start" targetRef="serviceUpload"/>
+    <serviceTask camunda:topic="swrl" camunda:type="external" id="ServiceTask_6" name="Rule Merge: Label_Overlapping_Flows_Src_Label_Overlapping_Flows_Dst">
+      <extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="Rule_0">:AllowedTcpFlow(?atf)^:DisallowedTcpFlow(?dtf)^:srcPortRange(?atf, ?aSrcPR)^:srcPortRange(?dtf, ?dSrcPR)^:maxPort(?aSrcPR, ?aSrcPMax)^:minPort(?dSrcPR, ?dSrcPMin)^:minPort(?aSrcPR, ?aSrcPMin)^:maxPort(?dSrcPR, ?dSrcPMax)^swrlb:lessThanOrEqual(?aSrcPMax, ?dSrcPMin)^swrlb:lessThanOrEqual(?aSrcPMin, ?dSrcPMax)-&gt;:overlapsWith(?dSrcPR, ?aSrcPR)</camunda:inputParameter>
+          <camunda:inputParameter name="Rule_1">:AllowedTcpFlow(?atf)^:DisallowedTcpFlow(?dtf)^:dstPortRange(?atf, ?aDstPR)^:dstPortRange(?dtf, ?dDstPR)^:maxPort(?aDstPR, ?aDstPMax)^:minPort(?dDstPR, ?dDstPMin)^:minPort(?aDstPR, ?aDstPMin)^:maxPort(?dDstPR, ?dDstPMax)^swrlb:lessThanOrEqual(?aDstPMax, ?dDstPMin)^swrlb:lessThanOrEqual(?aDstPMin, ?dDstPMax)-&gt;:overlapsWith(?dDstPR, ?aDstPR)</camunda:inputParameter>
+        </camunda:inputOutput>
+        <camunda:properties>
+          <camunda:property id="fraunhofer-type" name="type" value="SWRL"/>
+        </camunda:properties>
+      </extensionElements>
+      <incoming>sequenceFlow_e7972c8f-de17-4c91-882a-00325d9b2ff2</incoming>
+      <outgoing>sequenceFlow_bb6e346d-37b3-4643-a6df-0c33396c95cb</outgoing>
+    </serviceTask>
+    <sequenceFlow id="sequenceFlow_e7972c8f-de17-4c91-882a-00325d9b2ff2" sourceRef="serviceUpload" targetRef="ServiceTask_6"/>
+    <endEvent id="End" name="End">
+      <incoming>sequenceFlow_bb6e346d-37b3-4643-a6df-0c33396c95cb</incoming>
+    </endEvent>
+    <sequenceFlow id="sequenceFlow_bb6e346d-37b3-4643-a6df-0c33396c95cb" sourceRef="ServiceTask_6" targetRef="End"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_3a822b88-9def-4cfb-8651-5c46cc95df0c">
+    <bpmndi:BPMNPlane bpmnElement="Analysis_8_DynamicKnowledgeExtension" id="BPMNPlane_05fb4b80-c91a-4a55-b615-d204d9aa24f6">
+      <bpmndi:BPMNShape bpmnElement="Start" id="BPMNShape_96b4335a-1c15-47b0-bf4a-e560bc7a7cdd">
+        <dc:Bounds height="36.0" width="36.0" x="100.0" y="100.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="serviceUpload" id="BPMNShape_b072a821-64a1-4f6a-a8db-c1f314b12a0a">
+        <dc:Bounds height="80.0" width="100.0" x="186.0" y="78.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow_83b9788f-7f33-4bb4-8099-c88c6293bab4" id="BPMNEdge_81578154-789d-4ec4-a5bc-f797134f2af6">
+        <di:waypoint x="136.0" y="118.0"/>
+        <di:waypoint x="186.0" y="118.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape bpmnElement="ServiceTask_6" id="BPMNShape_c80ff9c0-121a-4c89-bd01-6091701a386c">
+        <dc:Bounds height="80.0" width="100.0" x="336.0" y="78.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow_e7972c8f-de17-4c91-882a-00325d9b2ff2" id="BPMNEdge_4dcc1590-0b76-47e5-bcf2-10b872b079ec">
+        <di:waypoint x="286.0" y="118.0"/>
+        <di:waypoint x="336.0" y="118.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape bpmnElement="End" id="BPMNShape_d4b77af5-3fc9-47cd-8833-da1c2fff33cc">
+        <dc:Bounds height="36.0" width="36.0" x="486.0" y="100.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow_bb6e346d-37b3-4643-a6df-0c33396c95cb" id="BPMNEdge_0508e871-acd5-4314-8bcc-f9ee272ddfb5">
+        <di:waypoint x="436.0" y="118.0"/>
+        <di:waypoint x="486.0" y="118.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
