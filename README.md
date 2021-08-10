@@ -39,4 +39,4 @@ Florian Patzer <florian.patzer@iosb.fraunhofer.de>
 
 Manuel Kloppenburg
 
-Nikolay Penkov
+Nikolay Penkov <n.penkow@gmail.com>
