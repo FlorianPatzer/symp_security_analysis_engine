@@ -9,7 +9,9 @@ import de.fraunhofer.iosb.svs.sae.workflowmanager.model.Phase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AnalysisState {
@@ -23,7 +25,7 @@ public class AnalysisState {
     private Boolean finished;
     private String outputOntologyName;
 
-    public AnalysisState(Analysis analysis) {
+    public AnalysisState(Analysis analysis, String starterAppKey) {
         this.analysis = analysis;
         this.finished = false;
         this.currentPhase = Phase.STATIC_KNOWLEDGE_EXTENSION;
@@ -31,9 +33,7 @@ public class AnalysisState {
     }
 
     public Workflow getCurrentPhaseWorkflow() {
-        return analysis.getWorkflows().stream()
-                .filter(workflow -> workflow.getPhase() == currentPhase)
-                .findFirst()
+        return analysis.getWorkflows().stream().filter(workflow -> workflow.getPhase() == currentPhase).findFirst()
                 .orElseThrow(() -> {
                     log.error("No workflow for Analysis {} for Phase {} found", analysis.getName(), currentPhase);
                     return new RuntimeException("No workflow for Analysis {} for Phase {} found");

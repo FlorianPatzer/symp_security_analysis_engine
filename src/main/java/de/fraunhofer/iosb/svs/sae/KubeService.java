@@ -97,7 +97,7 @@ public class KubeService implements WorkerService {
         Container container = new Container();
         container.setImage(imageName);
         
-        // TODO: This is done so that minikube uses localy built images
+        // TODO: This is done so that minikube uses localy built iages
         // TODO: Check if it's working in the actual k8s cluster
         container.setImagePullPolicy("IfNotPresent");
         
@@ -147,5 +147,12 @@ public class KubeService implements WorkerService {
         }
 
         return true;
+    }
+    
+    @Override
+    public boolean imageIsAvailableLocaly(String workerImage) {
+        // TODO: Implement
+        // This now however should work for now, because we are connecting to Fraunhofer's Rancher cluster, which shouldn't have our images localy.
+        return false;
     }
 }

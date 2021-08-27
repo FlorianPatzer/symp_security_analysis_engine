@@ -2,8 +2,16 @@ package de.fraunhofer.iosb.svs.sae.db;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Set;
 
 @Entity
@@ -19,6 +27,9 @@ public class App {
 	@Column(name = "report_callback_uri")
 	private String reportCallbackURI;
 	private String token;
+	
+	@ManyToMany(mappedBy = "subscribers", fetch = FetchType.EAGER)
+    private Set<Analysis> analyses;
 
 	public App() {
 		this.setKey(null);

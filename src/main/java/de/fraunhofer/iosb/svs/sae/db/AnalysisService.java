@@ -9,6 +9,8 @@ import de.fraunhofer.iosb.svs.sae.workflowmanager.exceptions.InvalidOntologyExce
 import de.fraunhofer.iosb.svs.sae.workflowmanager.model.Thing;
 
 import com.google.common.collect.Iterables;
+import com.google.common.hash.Hashing;
+
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.Literal;
@@ -66,18 +68,23 @@ public class AnalysisService {
         urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_LOCAL_URLS);
     }
 
-    public Analysis addAnalysis(String key, AnalysisDTO analysisDTO) {
+    public Analysis addAnalysis(String key, AnalysisDTO analysisDTO, String analysisHash)
+            throws ResourceAlreadyExistsException {
         App app = appRepository.findById(key).orElseThrow(() -> new ResourceNotFoundException(APP, key));
 
-        if (analysisRepository.existsByUuid(analysisDTO.getUuid())) {
-            throw new ResourceAlreadyExistsException(ANALYSIS, "uuid", analysisDTO.getUuid());
+        Analysis analysis;
+
+        if (analysisRepository.existsByHash(analysisHash)) {
+            throw new ResourceAlreadyExistsException(ANALYSIS, "hash", analysisHash);
+        } else {
+            Set<PolicyAnalysis> policyAnalyses = fetchAndAddPolicyAnalyses(analysisDTO.getPolicyAnalyses());
+
+            analysis = analysisRepository.save(new Analysis(analysisDTO.getName(), analysisDTO.getDescription(),
+                    app.getKey(), analysisDTO.getTargetSystemId(), policyAnalyses, analysisHash));
+
         }
 
-        Set<PolicyAnalysis> policyAnalyses = fetchAndAddPolicyAnalyses(analysisDTO.getPolicyAnalyses());
-
-        Analysis analysis = new Analysis(analysisDTO.getUuid(), analysisDTO.getName(), analysisDTO.getDescription(),
-                app.getKey(), analysisDTO.getTargetSystemId(), policyAnalyses);
-        return analysisRepository.save(analysis);
+        return analysis;
     }
 
     /**
@@ -91,6 +98,7 @@ public class AnalysisService {
         for (String policyAnalysisLink : policyAnalysesLinks) {
             validateUrl(policyAnalysisLink);
             // pull policy analysis, pull model
+            // TODO check if policy already exists? how to update? according to last changed
             // value?
             PolicyAnalysisDTO policyAnalysisDTO = fetchPolicyAnalysisDTO(policyAnalysisLink);
             PolicyAnalysis policyAnalysis = new PolicyAnalysis(policyAnalysisDTO.getLocalName(),
@@ -100,6 +108,7 @@ public class AnalysisService {
 
             // reading policy-based-analysis ontology and adding it to the document manager
             // so that it can be used as "imported" ontology
+            // TODO only add if it is not already present in the document manager
             OntModel policyBasedAnalysis = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
             try {
                 policyBasedAnalysis.read(policyBasedAnalysisResource.getInputStream(), "RDF/XML");
@@ -117,16 +126,23 @@ public class AnalysisService {
                 ontModel.read(ontologyBuffer.asInputStream(), "RDF/XML");
                 ontModel.listImportedOntologyURIs().forEach(log::debug);
 
+                // TODO maybe this in the wrong place here. These should probably be only
+                // downloaded when the workflows are already created.
+                // TODO Because here all ontodeps will be downloaded but maybe we don't need all
+                // of them but only those who are not already in the model
+                // TODO also the links should probably not point directly to the files but to a
+                // meta object that has a last changed values so we do not need to redownload
+                // all ontodeps
                 fetchAndAdaptOntologyDependencies(ontModel);
 
-                
+                // TODO plugin handler
                 AnalysisPlugin p = new AnalysisPlugin();
                 p.setPluginClasspath("de.fraunhofer.iosb.svs.sparql_security_analysis_plugin.Plugin");
                 p.setPluginFileName("sparql_security_analysis_plugin-0.0.2-SNAPSHOT.jar");
                 p.setResultClasspath("de.fraunhofer.iosb.svs.sparql_security_analysis_plugin.Report");
                 policyAnalysis.setAnalysisPlugin(p); // which plugin to use - pulled from hub?
 
-                
+                // TODO is this the best way to handle the query?
                 Individual policyImplementation = ontModel.getIndividual(policyAnalysisDTO.getUri());
                 Individual queryIndividual = Thing.getMustExistIndividual(policyImplementation, CONTAINS_URI);
                 Literal query = Thing.getMustExistLiteral(queryIndividual, QUERY_URI);
@@ -170,6 +186,8 @@ public class AnalysisService {
             log.debug("Fetch ontology dependency with prefix '{}' from '{}'", prefix, downloadLink);
             DataBuffer ontologyDepBuffer = webclient.get().uri(downloadLink).accept(MediaType.APPLICATION_OCTET_STREAM)
                     .retrieve().bodyToMono(DataBuffer.class).block();
+            // TODO check if it is valid ontology file?
+            // TODO what to take as filename?
             //
             filesToSave.put(ftpClientService.getFilenameForOwl(prefix), ontologyDepBuffer);
         }
@@ -253,7 +271,7 @@ public class AnalysisService {
     }
 
     public Analysis update(AnalysisDTO analysisDTO) {
-        Analysis updatedAnalysis = findByUUID(analysisDTO.getUuid());
+        Analysis updatedAnalysis = findByHash(analysisDTO.getHash());
 
         if (updatedAnalysis != null) {
             Set<PolicyAnalysis> policyAnalyses = fetchAndAddPolicyAnalyses(analysisDTO.getPolicyAnalyses());
@@ -262,6 +280,11 @@ public class AnalysisService {
             updatedAnalysis.setName(analysisDTO.getName());
             updatedAnalysis.setTargetSystemId(analysisDTO.getTargetSystemId());
 
+            // TODO: Fix
+            // The setPolicyAnalysis method fails for some reason (descritpion is set to
+            // null)
+            // updatedAnalysis.setPolicyAnalyses(policyAnalyses);
+
             analysisRepository.save(updatedAnalysis);
         }
 
@@ -269,6 +292,7 @@ public class AnalysisService {
     }
 
     public List<Analysis> findAll(String key) {
+        // TODO key?
         return analysisRepository.findAll();
     }
 
@@ -276,9 +300,9 @@ public class AnalysisService {
         return analysisRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Analysis", id));
     }
 
-    public Analysis findByUUID(String uuid) {
+    public Analysis findByHash(String analysisHash) {
         Analysis exampleAnalysis = new Analysis();
-        exampleAnalysis.setUuid(uuid);
+        exampleAnalysis.setHash(analysisHash);
         Example<Analysis> example = Example.of(exampleAnalysis);
 
         Optional<Analysis> analysisQuery = analysisRepository.findOne(example);
@@ -286,21 +310,36 @@ public class AnalysisService {
         if (analysisQuery.isPresent()) {
             analysis = analysisQuery.get();
         } else {
-            throw new ResourceNotFoundException("No Analysis found with uuid:" + uuid);
+            throw new ResourceNotFoundException("No Analysis found with hash:" + analysisHash);
         }
         return analysis;
     }
 
     public void deleteById(Long id) {
+        // nalysisRepository.deleteById(id);
         throw new UnsupportedOperationException();
     }
 
-    public void deleteByUUID(String uuid) {
-        Analysis analysis = findByUUID(uuid);
+    public void deleteByHash(String analysisHash) {
+        Analysis analysis = findByHash(analysisHash);
         if (analysis != null) {
             analysisRepository.deleteById(analysis.getId());
         } else {
-            throw new ResourceNotFoundException("No Analysis found with uuid:" + uuid);
+            throw new ResourceNotFoundException("No Analysis found with hash:" + analysisHash);
         }
+    }
+    
+    public String createHash(List<String> policiesList, Long tragetSystemId) {
+        StringJoiner sj = new StringJoiner(":", "[", "]");
+        
+        for (String policyUrl : policiesList) {
+            sj.add(policyUrl);
+        }
+        
+        sj.add(tragetSystemId.toString());
+        
+        return  Hashing.sha256()
+                .hashString(sj.toString(), StandardCharsets.UTF_8)
+                .toString();
     }
 }

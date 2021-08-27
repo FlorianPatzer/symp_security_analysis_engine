@@ -9,6 +9,7 @@ import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ContainerNetworkSettings;
+import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.Network;
 import com.github.dockerjava.core.DockerClientBuilder;
 import org.slf4j.Logger;
@@ -91,7 +92,6 @@ public class DockerService implements WorkerService {
 
     private String getImageId(String imageName) {
         try {
-            log.info("Check if image {} exists", imageName);
             InspectImageResponse inspectImageResponse = dockerClient.inspectImageCmd(imageName).exec();
             return inspectImageResponse.getId();
         } catch (NotFoundException nfex) {
@@ -185,7 +185,8 @@ public class DockerService implements WorkerService {
     private String createContainer(String containerImage, String containerName) {
         // TODO might need more here. Needs to be able to connect to camunda
         log.info("Create container {} for image {}", containerName, containerImage);
-        CreateContainerResponse createContainerResponse = dockerClient.createContainerCmd(containerImage).withName(containerName).exec();
+        CreateContainerResponse createContainerResponse = dockerClient.createContainerCmd(containerImage)
+                .withName(containerName).exec();
         if (createContainerResponse.getWarnings().length > 0) {
             log.warn("{}", Arrays.toString(createContainerResponse.getWarnings()));
         }
@@ -233,5 +234,22 @@ public class DockerService implements WorkerService {
             throw new WorkerServiceNotAvailableException("Docker Client connection problem", pex);
         }
         return true;
+    }
+
+    @Override
+    public boolean imageIsAvailableLocaly(String workerImage) {
+        boolean status;
+
+        log.debug("Checking local repository for image {}", workerImage);
+        try {
+            InspectImageResponse inspectImageResponse = dockerClient.inspectImageCmd(workerImage).exec();
+            status = true;
+        } catch (NotFoundException nfex) {
+            // Image does not exist so we need to create new container
+            log.debug("Image {} is not available localy", workerImage);
+            status = false;
+        }
+
+        return status;
     }
 }

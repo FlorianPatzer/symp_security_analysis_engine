@@ -10,10 +10,9 @@ import java.util.List;
 @Getter
 @RequiredArgsConstructor
 public class AnalysisDTO {
-    @NonNull
-    private final String uuid;
 
     private final String name;
+    private final String hash;
     private final String description;
 
     @NonNull

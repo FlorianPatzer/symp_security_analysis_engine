@@ -9,6 +9,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.hash.Hashing;
 
 import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
@@ -29,10 +30,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -49,7 +52,7 @@ import static org.hamcrest.Matchers.*;
 class AnalysisTests {
     private static final Logger log = LoggerFactory.getLogger(AnalysisTests.class);
 
-    private static String analysisUuid = "";
+    private static String analysisHash = "";
     private static String analysisName = "Test Analysis";
     private static String analysisDescription = "Test Description";
     private static List<String> policyAnalyses = new ArrayList<String>();
@@ -73,7 +76,7 @@ class AnalysisTests {
     private AppRepository appRepository;
 
     private static RestTemplate restTemplate;
-    
+
     @Value("${spring.profiles.active}")
     String activeProfile;
 
@@ -86,7 +89,7 @@ class AnalysisTests {
     @Value("${tests.ah.policyimplementation}")
     String testPolicyImplementation;
 
-    @Value("${tests.spc.targetsystemId}")
+    @Value("${tests.sme.targetsystemId}")
     String testTargetSystemId;
 
     @BeforeAll
@@ -107,7 +110,7 @@ class AnalysisTests {
         log.info("Testing app registration");
         // Read certificate and encode it with base64
         ClassLoader classLoader = getClass().getClassLoader();
-        File certFile = new File(classLoader.getResource("ssl_dev/cert.crt").getFile());
+        File certFile = new File(classLoader.getResource("ssl/cert.crt").getFile());
         byte[] fileBytes = FileUtils.readFileToByteArray(certFile);
         byte[] encodedBytes = Base64.getEncoder().encode(fileBytes);
         String file_base64_string = new String(encodedBytes, "UTF8");
@@ -146,43 +149,40 @@ class AnalysisTests {
         assertThat(appRepository.exists(Example.of(app)), is(true));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     @Order(2)
     public void testAddingAnalysis() throws JsonProcessingException {
-        analysisUuid = UUID.randomUUID().toString();
-        
-        String policy_suffix = "";
-        
-        if(activeProfile.equals("k8s") || activeProfile.equals("gitlab")) {
-            policy_suffix = "_K8S";
-        }
-
-        policyAnalyses.add(ahBaseUrl + "/api/v1/policyimplementation/" + testPolicyImplementation + policy_suffix);
+        policyAnalyses.add(ahBaseUrl + "/api/v1/policyimplementation/" + testPolicyImplementation);
 
         long targetSystemId = Long.valueOf(testTargetSystemId);
-        AnalysisDTO analysisDTO = new AnalysisDTO(analysisUuid, analysisName, analysisDescription, targetSystemId,
+        AnalysisDTO analysisDTO = new AnalysisDTO(analysisHash, analysisName, analysisDescription, targetSystemId,
                 policyAnalyses);
 
-        // Check if the analysis already exists and delete it
-        if (analysisRepository.existsByUuid(analysisUuid)) {
-            analysisService.deleteByUUID(analysisUuid);
+        analysisHash = analysisService.createHash(policyAnalyses, targetSystemId);
+
+        if (!analysisRepository.existsByHash(analysisHash)) {
+            // Create Request
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.add("token", appJwt);
+
+            ObjectMapper mapper = new ObjectMapper();
+            String requestData = mapper.writeValueAsString(analysisDTO);
+
+            // Make request
+            HttpEntity<String> request = new HttpEntity<String>(requestData, headers);
+            ResponseEntity<String> response = restTemplate
+                    .postForEntity(httpProtocol + "://localhost:" + port + "/api/v1/analysis", request, String.class);
+
+            Map<String, Object> jsonToMap = new ObjectMapper().readValue(response.getBody(), Map.class);
+            analysisHash = (String) jsonToMap.get("analysisHash");
+        }
+        else {
+            log.info("There exists already a similar analysis. Skipping adding duplicate");
         }
 
-        // Create Request
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("token", appJwt);
-
-        ObjectMapper mapper = new ObjectMapper();
-        String requestData = mapper.writeValueAsString(analysisDTO);
-
-        // Make request
-        HttpEntity<String> request = new HttpEntity<String>(requestData, headers);
-        ResponseEntity<String> response = restTemplate
-                .postForEntity(httpProtocol + "://localhost:" + port + "/api/v1/analysis", request, String.class);
-
-        assertThat(response.getStatusCode(), is(HttpStatus.OK));
-        assertThat(analysisRepository.existsByUuid(analysisUuid), is(true));
+        assertThat(analysisRepository.existsByHash(analysisHash), is(true));
     }
 
     @Test
@@ -195,7 +195,7 @@ class AnalysisTests {
         HttpEntity<?> entity = new HttpEntity<Object>(headers);
 
         ResponseEntity<Analysis> response = restTemplate.exchange(
-                httpProtocol + "://localhost:" + port + "/api/v1/analysis/" + analysisUuid, HttpMethod.GET, entity,
+                httpProtocol + "://localhost:" + port + "/api/v1/analysis/" + analysisHash, HttpMethod.GET, entity,
                 Analysis.class);
 
         Analysis analysis = response.getBody();
@@ -233,7 +233,7 @@ class AnalysisTests {
         // Make request
         HttpEntity<String> request = new HttpEntity<String>(requestData, headers);
         ResponseEntity<String> response = restTemplate.postForEntity(
-                httpProtocol + "://localhost:" + port + "/api/v1/analysis/" + analysisUuid + "/start", request,
+                httpProtocol + "://localhost:" + port + "/api/v1/analysis/" + analysisHash + "/start", request,
                 String.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
@@ -249,12 +249,63 @@ class AnalysisTests {
         HttpEntity<?> entity = new HttpEntity<Object>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                httpProtocol + "://localhost:" + port + "/api/v1/analysis/" + analysisUuid + "/status", HttpMethod.GET,
+                httpProtocol + "://localhost:" + port + "/api/v1/analysis/" + analysisHash + "/status", HttpMethod.GET,
                 entity, String.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
     }
-    
+
+    // Takes too long to finish
+    /*
+     * @SuppressWarnings("unchecked")
+     * 
+     * @Test
+     * 
+     * @Order(7) public void waitAnalysisFinish() throws InterruptedException,
+     * JsonMappingException, JsonProcessingException { HttpHeaders headers = new
+     * HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON);
+     * headers.add("token", appJwt);
+     * 
+     * HttpEntity<?> entity = new HttpEntity<Object>(headers);
+     * 
+     * ResponseEntity<String> response = restTemplate.exchange( httpProtocol +
+     * "://localhost:" + port + "/api/v1/analysis/" + analysisUuid + "/status",
+     * HttpMethod.GET, entity, String.class);
+     * 
+     * Map<String, String> data = new ObjectMapper().readValue(response.getBody(),
+     * HashMap.class);
+     * 
+     * while (data.get("status").equals("Running")) {
+     * log.debug("Analysis is still running");
+     * 
+     * Thread.sleep(1000 * 5);
+     * 
+     * response = restTemplate.exchange( httpProtocol + "://localhost:" + port +
+     * "/api/v1/analysis/" + analysisUuid + "/status", HttpMethod.GET, entity,
+     * String.class); data = new ObjectMapper().readValue(response.getBody(),
+     * HashMap.class);
+     * 
+     * }
+     * 
+     * assertThat(response.getStatusCode(), is(HttpStatus.OK)); }
+     */
+
+    // Not supported
+    /*
+     * @Test
+     * 
+     * @Order(6) public void testDeletingAnalysis() { HttpHeaders headers = new
+     * HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON);
+     * headers.add("token", token);
+     * 
+     * HttpEntity<?> entity = new HttpEntity<Object>(headers);
+     * 
+     * ResponseEntity<String> response = restTemplate.exchange(httpProtocol +
+     * "://localhost:" + port + "/api/v1/analysis/" + analysisUuid,
+     * HttpMethod.DELETE, entity, String.class);
+     * 
+     * assertThat(analysisRepository.existsByUuid(analysisUuid), is(false)); }
+     */
 
     @Test
     @Order(8)

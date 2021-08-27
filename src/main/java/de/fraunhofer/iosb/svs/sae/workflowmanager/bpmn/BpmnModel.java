@@ -79,11 +79,15 @@ public class BpmnModel {
         this.mountpointHandler = mountpointHandler;
         ProcessBuilder processBuilder = Bpmn.createExecutableProcess(processId);
         modelInstance = processBuilder.done();
+        // TODO what Namespace? what definitions id?
         modelInstance.getDefinitions().setTargetNamespace("http://bpmn.io/schema/bpmn");
+        // TODO Name Id ?
         lastUsed = processBuilder.startEvent(START_EVENT).name("StartEvent");
+        // TODO what id?
         lastUsed = addOntologyUploadTask(lastUsed, uploads, "serviceUpload", "Initial Ontology Upload Task");
         if (uploads.entrySet().size() > 1) {
             // more than one upload so we need a remergetask
+            // TODO what id?
             lastUsed = handleRemerge(lastUsed, "OntRemerge_initial");
         }
     }
@@ -167,13 +171,14 @@ public class BpmnModel {
      */
     private ServiceTaskBuilder handleImplementation(AbstractFlowNodeBuilder parentBuilder, Implementation implementation, String id) {
         ServiceTaskBuilder serviceTaskBuilder = parentBuilder.serviceTask(id).name(implementation.getLocalName()).camundaType("external");
+        // TODO should be abstract method from implementation
         if (implementation instanceof ProcessingModule) {
             ProcessingModule processingModule = (ProcessingModule) implementation;
             // processing module has imageName, we add it as input output
             serviceTaskBuilder
                     .camundaTopic(processingModule.getTopicName())
                     .addExtensionElement(getFraunhoferPropertyEE(PROCESSINGMODULE))
-                    .addExtensionElement(getInputOutputEE("ImageName", processingModule.getImageName()));
+                    .addExtensionElement(getInputOutputEE("ImageName", processingModule.getImageInfo().getName()));
         } else if (implementation instanceof ProcessingRule) {
             ProcessingRule processingRule = (ProcessingRule) implementation;
             serviceTaskBuilder.addExtensionElement(getInputOutputEE("Rule", processingRule.getRule()));

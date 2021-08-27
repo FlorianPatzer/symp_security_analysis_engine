@@ -42,6 +42,25 @@ public class ScheduleAlgorithm {
         scheduleGraph = new DirectedAcyclicGraph<>(DefaultEdge.class);
         // pre calc alternative
         // this is an alternative to detecting mergable rules as done below
+        /*Set<List<SwrlRule>> combinationsSwrl = graph.vertexSet().stream().filter(nodeable -> nodeable instanceof SwrlRule).map(nodeable -> (SwrlRule) nodeable)
+                .collect(Collectors.groupingBy(graph::incomingEdgesOf))
+                .values().stream()
+                .filter(swrlRules -> swrlRules.size() > 1).collect(Collectors.toSet());
+
+        for (List<SwrlRule> swrlList : combinationsSwrl) {
+            log.debug("New swrl combination found of size {}", swrlList.size());
+            SwrlCombination swrlCombination = new SwrlCombination(swrlList);
+            graph.addVertex(swrlCombination);
+            // set incoming edges
+            // they are equal for all swrl rules we combine, so we only need to do it once
+            graph.incomingEdgesOf(swrlList.get(0)).stream().map(edge -> graph.getEdgeSource(edge)).forEach(vertex -> graph.addEdge(vertex, swrlCombination));
+            swrlList.forEach(swrlRule -> {
+                // add outgoing edges to new nodeable
+                graph.outgoingEdgesOf(swrlRule).stream().map(edge -> graph.getEdgeSource(edge)).forEach(vertex -> graph.addEdge(swrlCombination, vertex));
+                // remove vertex from set
+                graph.removeVertex(swrlRule);
+            });
+        }*/
         log.debug("Calculate schedule graph");
 
         // first node and only root is always the start node

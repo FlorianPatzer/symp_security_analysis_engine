@@ -166,6 +166,7 @@ public class PolicyModelOperations implements ModelOperations {
      * @return
      */
     public Set<OntologyDependency> getDependsOnOntologyDependencies(OntologyDependency ontologyDependency, Set<OntologyDependency> targets) {
+        // TODO other way around
         // take all depends on
         return ontologyDependency.getIndividual().listPropertyValues(dependsOnProperty)
                 .mapWith(rdfNode -> rdfNode.as(Individual.class))

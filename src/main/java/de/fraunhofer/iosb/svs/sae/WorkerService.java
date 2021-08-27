@@ -6,4 +6,5 @@ public interface WorkerService {
 
     void hasOrStartWorker(String workerImage, String workerName);
     boolean isAvailable() throws WorkerServiceNotAvailableException;
+    boolean imageIsAvailableLocaly(String workerImage);
 }

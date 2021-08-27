@@ -62,4 +62,6 @@ public class CachedOntModelHandler implements OntModelGetter, OntModelAdder {
         modelMaker.createModel(name, ontModel);
         // add to cache?
     }
+
+    // TODO reload model
 }

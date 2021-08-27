@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class ExceptionAdvice {
+    //TODO ex.getMessage() should not be returned as it show application internal stuff
 
     @ResponseBody
     @ExceptionHandler(ResourceNotFoundException.class)

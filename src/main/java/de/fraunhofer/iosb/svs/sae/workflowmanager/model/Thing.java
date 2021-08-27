@@ -19,7 +19,8 @@ public class Thing {
         this.individual = individual;
     }
 
-    public static Literal getMustExistLiteral(Individual individual, String dataPropertyString) throws InvalidOntologyException {
+    public static Literal getMustExistLiteral(Individual individual, String dataPropertyString)
+            throws InvalidOntologyException {
         DatatypeProperty dataProperty = individual.getOntModel().getDatatypeProperty(dataPropertyString);
         if (dataProperty == null) {
             throw new InvalidOntologyException("Data Property '" + dataPropertyString + "' not found");
@@ -33,19 +34,23 @@ public class Thing {
                 throw new InvalidOntologyException("Could not convert to literal", oex);
             }
         } else {
-            throw new InvalidOntologyException("Individual " + individual.getLocalName() + " has no property " + dataPropertyString);
+            throw new InvalidOntologyException(
+                    "Individual " + individual.getLocalName() + " has no property " + dataPropertyString);
         }
     }
 
     /**
      * Individual should only have one property of that value.
+     * 
      * @param individual
      * @param objectPropertyString
      * @return
      * @throws InvalidOntologyException
      */
-    public static Individual getMustExistIndividual(Individual individual, String objectPropertyString) throws InvalidOntologyException {
-        org.apache.jena.ontology.ObjectProperty objectProperty = individual.getOntModel().getObjectProperty(objectPropertyString);
+    public static Individual getMustExistIndividual(Individual individual, String objectPropertyString)
+            throws InvalidOntologyException {
+        org.apache.jena.ontology.ObjectProperty objectProperty = individual.getOntModel()
+                .getObjectProperty(objectPropertyString);
         if (objectProperty == null) {
             throw new InvalidOntologyException("Object Property '" + objectPropertyString + "' not found");
         }
@@ -58,7 +63,8 @@ public class Thing {
                 throw new InvalidOntologyException("Could not convert to individual", oex);
             }
         } else {
-            throw new InvalidOntologyException("Individual " + individual.getLocalName() + " has no property " + objectPropertyString);
+            throw new InvalidOntologyException(
+                    "Individual " + individual.getLocalName() + " has no property " + objectPropertyString);
         }
     }
 
@@ -96,6 +102,5 @@ public class Thing {
     public String toString() {
         return getUri();
     }
-
 
 }

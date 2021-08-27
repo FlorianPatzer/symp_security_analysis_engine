@@ -1,8 +1,9 @@
 package de.fraunhofer.iosb.svs.sae.db;
 
+import javax.persistence.*;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
 
-import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,23 +13,22 @@ public class AnalysisReport {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "analysis_id")
-    @JsonFilter("uuidOnly")
-    private Analysis analysis;
     @Column(name = "start_time")
     private Timestamp startTime;
     @Column(name = "finish_time")
     private Timestamp finishTime;
-
+    @Column(name = "analysis_id")
+    private Long analysisId;
+   
     @Column(name = "error")
     private String error;
 
     @OneToMany(mappedBy = "analysisReport")
     private Set<PolicyAnalysisReport> policyAnalysisReportSet;
 
-    public AnalysisReport(Timestamp startTime) {
+    public AnalysisReport(Timestamp startTime, Long analysisId) {
         this.startTime = startTime;
+        this.analysisId = analysisId;
         this.policyAnalysisReportSet = new HashSet<>();
     }
 
@@ -43,12 +43,12 @@ public class AnalysisReport {
         this.id = id;
     }
 
-    public Analysis getAnalysis() {
-        return analysis;
+    public Long getAnalysisId() {
+        return analysisId;
     }
 
-    public void setAnalysis(Analysis analysis) {
-        this.analysis = analysis;
+    public void setAnalysisId(Long analysisId) {
+        this.analysisId = analysisId;
     }
 
     public Timestamp getStartTime() {

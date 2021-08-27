@@ -53,6 +53,7 @@ public class ReloadableX509TrustManager implements X509TrustManager {
 		try {
 			instance = new ReloadableX509TrustManager(customTrustStorePath, customTrustStorePassword);
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
 @Entity
 public class Analysis {
     @Id
@@ -21,17 +20,18 @@ public class Analysis {
     @JsonIgnore
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String uuid;
     @Column(nullable = false)
     private String name;
-    @Column(nullable = false, length=1500)
+    @Column(nullable = false)
     private String description;
-   
+
+    @Column(nullable = false, unique = true)
+    private String hash;
+
     @Column(name = "owner_app_id", nullable = false)
     @JsonIgnore
     private String ownerApp;
-    
+
     // these are only valid if the analysis is running
     @OneToOne
     private AnalysisReport currentAnalysisReport;
@@ -51,19 +51,22 @@ public class Analysis {
     @JsonProperty("targetSystem")
     private Long targetSystemId;
 
-    @OneToMany(mappedBy = "analysis")
-    @JsonFilter("idOnly")
+    @OneToMany(mappedBy = "analysisId", fetch = FetchType.EAGER)
     private Set<AnalysisReport> analysisReports;
 
-    @OneToMany(mappedBy = "analysis", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "analysis", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JsonFilter("shortPolicyAnalysis")
     private Set<PolicyAnalysis> policyAnalyses;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<App> subscribers;
 
     @Transient
     @JsonIgnore
     private TargetSystem targetSystem;
 
-    public Analysis(Long id, String name, String description, String ownerApp, Boolean error, Timestamp lastInvocation, Timestamp lastFinish, Long targetSystemId) {
+    public Analysis(Long id, String name, String description, String ownerApp, Boolean error, Timestamp lastInvocation,
+            Timestamp lastFinish, Long targetSystemId, String analysisHash) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -72,15 +75,17 @@ public class Analysis {
         this.lastInvocation = lastInvocation;
         this.lastFinish = lastFinish;
         this.targetSystemId = targetSystemId;
+        this.hash = analysisHash;
     }
 
-    public Analysis(String uuid, String name, String description, String ownerApp, Long targetSystemId, Set<PolicyAnalysis> policyAnalyses) {
-        this.uuid = uuid;
+    public Analysis(String name, String description, String ownerApp, Long targetSystemId,
+            Set<PolicyAnalysis> policyAnalyses, String analysisHash) {
         this.name = name;
         this.description = description;
         this.ownerApp = ownerApp;
         this.targetSystemId = targetSystemId;
         this.policyAnalyses = policyAnalyses;
+        this.hash = analysisHash;
         policyAnalyses.forEach(policyAnalysis -> policyAnalysis.setAnalysis(this));
     }
 
@@ -94,16 +99,16 @@ public class Analysis {
         this.targetSystemId = null;
     }
 
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
     public Long getId() {
         return id;
+    }
+
+    public void setHash(String analysisHash) {
+        this.hash = analysisHash;
+    }
+
+    public String getHash() {
+        return this.hash;
     }
 
     public void setId(Long id) {
@@ -158,6 +163,17 @@ public class Analysis {
         this.currentAnalysisReport = currentAnalysisReport;
     }
 
+    public void addSubscriber(App app) {
+        subscribers.add(app);
+    }
+
+    public void removeSubscriber(App app) {
+        subscribers.remove(app);
+    }
+
+    public Set<App> getSubscribers() {
+        return subscribers;
+    }
 
     public Boolean getError() {
         return error;
@@ -180,7 +196,7 @@ public class Analysis {
             analysisReports = new HashSet<>();
         }
         this.analysisReports.add(analysisReport);
-        analysisReport.setAnalysis(this);
+        analysisReport.setAnalysisId(this.getId());
     }
 
     public Set<PolicyAnalysis> getPolicyAnalyses() {

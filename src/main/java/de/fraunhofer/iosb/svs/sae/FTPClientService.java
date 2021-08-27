@@ -70,6 +70,8 @@ public class FTPClientService implements MountpointHandler {
 
     public String uploadFile(String fileName, InputStream inputStream) {
         FTPClient ftpClient = new FTPClient();
+        ftpClient.setRemoteVerificationEnabled(false);
+        
         try {
             ftpClient.connect(host, port);
             if (!FTPReply.isPositiveCompletion(ftpClient.getReply())) {
@@ -98,9 +100,14 @@ public class FTPClientService implements MountpointHandler {
 
     public void uploadFiles(Map<String, DataBuffer> uploads) {
         FTPClient ftpClient = new FTPClient();
+        ftpClient.setRemoteVerificationEnabled(false);
+        
         try {
             log.debug("Connect to '{}:{}'", host, port);
             ftpClient.connect(host, port);
+            // if (!FTPReply.isPositiveCompletion(ftpClient.getReply())) {
+            // throw new FTPConnectionException("FTP server refused connection");
+            // }
             log.debug("Enter local passive mode");
             ftpClient.enterLocalPassiveMode();
             log.debug("Login anonymous");

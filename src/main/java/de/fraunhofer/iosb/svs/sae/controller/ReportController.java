@@ -6,6 +6,8 @@ import de.fraunhofer.iosb.svs.sae.db.AnalysisReport;
 import de.fraunhofer.iosb.svs.sae.security.JWTMisc;
 
 import java.util.HashMap;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,22 +26,40 @@ public class ReportController {
     }
 
     @GetMapping(path = "/report/{id}", produces = "application/json")
-    public ResponseEntity<?> getAnalysisReportById(@RequestHeader("token") String token, @PathVariable("id") Long id) {        
+    public ResponseEntity<?> getAnalysisReportById(@RequestHeader("token") String token, @PathVariable("id") Long id) {
         HashMap<String, String> data = new HashMap<>();
         HttpStatus status;
         DecodedJWT jwt = JWTMisc.verifyAndDecode(token);
-        
+
         ResponseEntity<?> responseEntity = null;
         if (jwt != null) {
             AnalysisReport analysisReport = reportService.getAnalysisReportById(id);
             responseEntity = ResponseEntity.ok(analysisReport);
-        }
-        else {
+        } else {
             data.put("status", "Invalid token");
             status = HttpStatus.BAD_REQUEST;
             responseEntity = new ResponseEntity<HashMap<String, String>>(data, status);
         }
-        
+
+        return responseEntity;
+    }
+    
+    @GetMapping(path = "/report", produces = "application/json")
+    public ResponseEntity<?> getAllAnalysisReport(@RequestHeader("token") String token) {
+        HashMap<String, String> data = new HashMap<>();
+        HttpStatus status;
+        DecodedJWT jwt = JWTMisc.verifyAndDecode(token);
+
+        ResponseEntity<?> responseEntity = null;
+        if (jwt != null) {
+            List<AnalysisReport> analysisReports = reportService.getAllAnalysisReports();
+            responseEntity = ResponseEntity.ok(analysisReports);
+        } else {
+            data.put("status", "Invalid token");
+            status = HttpStatus.BAD_REQUEST;
+            responseEntity = new ResponseEntity<HashMap<String, String>>(data, status);
+        }
+
         return responseEntity;
     }
 }

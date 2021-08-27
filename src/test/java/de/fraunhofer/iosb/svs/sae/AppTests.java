@@ -70,7 +70,7 @@ class AppTests {
         log.info("Testing app registration");
         // Read certificate and encode it with base64
         ClassLoader classLoader = getClass().getClassLoader();
-        File certFile = new File(classLoader.getResource("ssl_dev/cert.crt").getFile());
+        File certFile = new File(classLoader.getResource("ssl/cert.crt").getFile());
         byte[] fileBytes = FileUtils.readFileToByteArray(certFile);
         byte[] encodedBytes = Base64.getEncoder().encode(fileBytes);
         String file_base64_string = new String(encodedBytes, "UTF8");

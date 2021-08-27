@@ -57,6 +57,12 @@ public class CamundaClient {
     public Map<Workflow, String> deployWorkflows(List<Workflow> workflows, String deploymentName) {
         MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
         bodyBuilder.part("deployment-name", deploymentName);
+		/*
+		bodyBuilder.part("enable-duplicate-filtering", false);
+		bodyBuilder.part("deploy-changed-only", false);
+		bodyBuilder.part("deployment-source", "");
+		bodyBuilder.part("tenant-id", "");
+		*/
         workflows.forEach(workflow -> bodyBuilder.part(workflow.getPhase().getLocalName(), new FileSystemResource(workflow.getLocalFile())));
         try {
             log.info("Post deployment {} to Camunda, blocking", deploymentName);

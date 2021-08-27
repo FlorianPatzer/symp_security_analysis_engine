@@ -16,6 +16,10 @@ public class TargetSystem {
      */
     private String ontologyPath;
 
+    /*
+    TODO add here and at spc a last changed field --> make target system at analysis persistent --> before execution check if lastchanged changed at spc --> if not maybe we dont need to do analysis (depends on policyanalyses)
+     */
+
     public TargetSystem() {
     }
 

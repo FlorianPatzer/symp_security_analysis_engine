@@ -14,6 +14,7 @@ public class Workflow {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    //TODO should maybe be outputstream or something
     // first should be string filename
     private File localFile;
 

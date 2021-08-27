@@ -4,6 +4,8 @@ import static de.fraunhofer.iosb.svs.sae.workflowmanager.model.Policy.POLICY_BAS
 
 public class DataProperty {
     public static final String IMAGE_NAME_URI = POLICY_BASED_ANALYSIS_NS + "imageName";
+    public static final String IMAGE_EXTERNAL_SOURCE_URI = POLICY_BASED_ANALYSIS_NS + "imageExternalSource";
+    public static final String IMAGE_TAG_URI = POLICY_BASED_ANALYSIS_NS + "imageTag";
     public static final String RULE_URI = POLICY_BASED_ANALYSIS_NS + "rule";
     public static final String NAME_URI = POLICY_BASED_ANALYSIS_NS + "name";
     public static final String URI_URI = POLICY_BASED_ANALYSIS_NS + "uri";

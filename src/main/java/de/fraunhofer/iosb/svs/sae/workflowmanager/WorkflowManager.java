@@ -63,10 +63,14 @@ public class WorkflowManager {
      * @return a set of image names from processing modules, for which worker should
      *         be started
      */
-    public Set<String> createWorkflows(Analysis analysis) {
-        List<String> graphNames = analysis.getPolicyAnalyses().stream().map(PolicyAnalysis::getGraphName)
+    public Set<ImageInfo> createWorkflows(Analysis analysis) {
+        List<String> graphNames = analysis.getPolicyAnalyses()
+                .stream()
+                .map(PolicyAnalysis::getGraphName)
                 .collect(Collectors.toList());
+        
         TargetSystem targetSystem = analysis.getTargetSystem();
+        
         log.debug("Create workflows using graphs {}", graphNames);
         PolicyModelOperations policyModelOperations = new PolicyModelOperations(graphNames, cachedOntModelHandler);
 
@@ -90,22 +94,25 @@ public class WorkflowManager {
         }
 
         // processing module image names
-        Set<String> imageNames = new HashSet<>();
+        Set<ImageInfo> imagesInfo = new HashSet<>();
 
         // iterating the three phases
         List<Phase> phases = Arrays.asList(Phase.STATIC_KNOWLEDGE_EXTENSION, Phase.DYNAMIC_KNOWLEDGE_EXTENSION,
                 Phase.ANALYSIS);
         Map<String, String> uploads = new HashMap<>();
         uploads.put(SYSTEM_MODEL_OUTPUT_ONTOLOGY, targetSystem.getOntologyPath());
+        
         for (Phase phase : phases) {
+            // TODO other uploads than previous ontology?
             // creating bpmn file for workflow phase and updating policy Analysis
             Workflow workflow = doBpmn(phase, String.valueOf(analysis.getId()), policyModelOperations, uploads,
                     alreadySeenOntologyDependencies);
             analysis.addWorkflow(workflow);
             workflowRepository.save(workflow);
             // policyAnalysisRepository.save(policyAnalysis);
-
-            addImageNames(policyModelOperations, imageNames, phase);
+            
+            System.out.println(policyModelOperations);
+            addImagesInfo(policyModelOperations, imagesInfo, phase);
 
             // prepare next phase
             if (!workflow.getOutputOntologyName().contains("serviceUpload")) {
@@ -115,7 +122,8 @@ public class WorkflowManager {
                 uploads.put(phase.getLocalName() + SUFFIX_OUTPUT_ONTOLOGY, outputOntology);
             }
         }
-        return imageNames;
+        
+        return imagesInfo;
     }
 
     /**
@@ -126,12 +134,12 @@ public class WorkflowManager {
      * @param imageNames            the set to add the imageNames to
      * @param phase                 the phase to take the implementations from
      */
-    private void addImageNames(PolicyModelOperations policyModelOperations, Set<String> imageNames, Phase phase) {
+    private void addImagesInfo(PolicyModelOperations policyModelOperations, Set<ImageInfo> imagesInfo, Phase phase) {
         // add ProcessingModules imageNames to return set
         policyModelOperations.getImplementationsStream(phase)
                 .filter(implementation -> implementation instanceof ProcessingModule)
-                .map(implementation -> (ProcessingModule) implementation).map(ProcessingModule::getImageName)
-                .collect(Collectors.toCollection(() -> imageNames));
+                .map(implementation -> (ProcessingModule) implementation).map(ProcessingModule::getImageInfo)
+                .collect(Collectors.toCollection(() -> imagesInfo));
     }
 
     /**
@@ -154,11 +162,20 @@ public class WorkflowManager {
         // by the iri in the bpmn
         Set<OntologyDependency> includedOntologyDependencies = new HashSet<>();
         for (String ontologyDependencyId : targetSystem.getOntologyDependencyIds()) {
-        	Optional<OntologyDependency> dep = policyModelOperations.getOntologyDependencies().stream().filter(ontologyDependency -> ontologyDependency
-        			.getIndividual().getLocalName().equals(ontologyDependencyId)).findAny();
-        	if(dep.isPresent()) {
-        		includedOntologyDependencies.add(dep.get());
-        	}
+            includedOntologyDependencies
+                    .add(policyModelOperations
+                            .getOntologyDependencies().stream().filter(ontologyDependency -> ontologyDependency
+                                    .getIndividual().getLocalName().equals(ontologyDependencyId))
+                            .findAny().orElseThrow(() -> {
+                                // there is a ontologydependency declared in our target system, that could not
+                                // be found in the current graph
+                                // TODO is that so bad?
+                                log.error(
+                                        "OntologyDependency {} declared in TargetSystem {} could not be found in graph",
+                                        ontologyDependencyId, targetSystem.getName());
+                                return new NoSuchElementException(
+                                        "OntologyDependency declared in TargetSystem could not be found in graph");
+                            }));
         }
 
         // all implementations of the other phases that are not in the task ids, have to

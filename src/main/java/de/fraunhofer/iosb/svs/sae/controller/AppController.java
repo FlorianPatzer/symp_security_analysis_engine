@@ -69,6 +69,7 @@ public class AppController {
 		return response;
 	}
 	
+	// TODO: Remove or make secure
 	@PostMapping(path = "/app/unregister", produces = "application/json")
 	public ResponseEntity<HashMap<String, String>> appUnregister(@RequestHeader("token") String token)
 			throws Exception {

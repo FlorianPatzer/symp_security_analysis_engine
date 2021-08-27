@@ -4,23 +4,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ReportNotification {
 
-    @JsonProperty("analysisUuid")
-    private String analysisUUID;
-
     @JsonProperty("reportId")
     private Long reportId;
+    
+    @JsonProperty("analysisId")
+    private Long analysisId;
 
-    public ReportNotification(String analysisUUID, Long reportId) {
-        this.analysisUUID = analysisUUID;
+    public ReportNotification(Long analysisId, Long reportId) {
+        this.analysisId = analysisId;
         this.reportId = reportId;
     }
 
-    public String getAnalysisUUID() {
-        return analysisUUID;
+    public Long getAnalysisId() {
+        return analysisId;
     }
 
-    public void setAnalysisUUID(String analysisUUID) {
-        this.analysisUUID = analysisUUID;
+    public void setAnalysisId(Long analysisId) {
+        this.analysisId = analysisId;
     }
 
     public Long getReportId() {

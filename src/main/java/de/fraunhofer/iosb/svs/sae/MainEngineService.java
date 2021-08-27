@@ -11,6 +11,7 @@ import de.fraunhofer.iosb.svs.sae.restclient.camunda.CamundaProcessInstanceHisto
 import de.fraunhofer.iosb.svs.sae.restclient.sme.SmeClientService;
 import de.fraunhofer.iosb.svs.sae.restclient.sme.TargetSystem;
 import de.fraunhofer.iosb.svs.sae.security.RestTemplateWithReloadableTruststore;
+import de.fraunhofer.iosb.svs.sae.workflowmanager.ImageInfo;
 import de.fraunhofer.iosb.svs.sae.workflowmanager.WorkflowManager;
 import de.fraunhofer.iosb.svs.sae.workflowmanager.exceptions.InvalidOntologyException;
 
@@ -58,9 +59,6 @@ public class MainEngineService {
     // maps analysis
     private Map<String, Map<String, Object>> loadedPlugins;
 
-    //
-    private Map<Long, List<String>> startedAnalyses;
-
     @Autowired
     public MainEngineService(AsyncService asyncService, SmeClientService smeClientService,
             WorkflowManager workflowManager, CamundaClient camundaClient, DockerService dockerService,
@@ -90,13 +88,12 @@ public class MainEngineService {
 
         runningAnalyses = new HashMap<>();
         loadedPlugins = new HashMap<>();
-        startedAnalyses = new HashMap<Long, List<String>>();
     }
 
     public Map<String, String> checkAnalysisStatus(Analysis analysis) {
         Map<String, String> output = new HashMap<String, String>();
 
-        if (startedAnalyses.containsKey(analysis.getId())) {
+        if (runningAnalyses.containsKey(analysis.getId())) {
             output.put("status", "Running");
         } else {
             output.put("status", "Idle");
@@ -105,25 +102,20 @@ public class MainEngineService {
         return output;
     }
 
-    public Map<String, String> startAnalysis(Analysis analysis, String appKey) throws InterruptedException {
-        // App app = getApp(appKey);
+    public Map<String, String> startAnalysis(Long analysisId, String appKey) throws InterruptedException {
         Map<String, String> output = new HashMap<String, String>();
-        Long analysisId = analysis.getId();
+        App app = appRepository.getOne(appKey);
+        Analysis analysis = getAnalysis(analysisId);
 
-        List<String> appSubscribers;
-
-        if (!startedAnalyses.containsKey(analysisId)) {
-            appSubscribers = new ArrayList<String>();
-            appSubscribers.add(appKey);
-            startedAnalyses.put(analysisId, appSubscribers);
-
+        if (!runningAnalyses.containsKey(analysisId)) {
             // Update start time and running status
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             analysis.setLastInvocation(timestamp);
+            analysis.addSubscriber(app);
 
             // Generate a new analysis report with the timestamp and add it to the analysis
             // adding as general analysis report, but also as current analysis report
-            AnalysisReport analysisReport = new AnalysisReport(timestamp);
+            AnalysisReport analysisReport = new AnalysisReport(timestamp, analysis.getId());
             analysis.addAnalysisReport(analysisReport);
             analysis.setCurrentAnalysisReport(analysisReport);
             analysisReportRepository.save(analysisReport);
@@ -132,56 +124,50 @@ public class MainEngineService {
             fillAnalysisWithTargetSystem(analysis);
             log.info("TargetSystem for Analysis {} with id {} found", analysis.getName(), analysisId);
             log.debug(analysis.getTargetSystem().toString());
+
             // test Satisfiability
             checkSatisfiability(analysis);
             log.info("Analysis {} with id {} is satisfiable", analysis.getName(), analysisId);
-
             log.info("Analysis {} with id {} started", analysis.getName(), analysis.getId());
 
-            Set<String> workerImages = workflowManager.createWorkflows(analysis);
+            Set<ImageInfo> workerImagesInfo = workflowManager.createWorkflows(analysis);
 
-            for (String workerImage : workerImages) {
-                String workerName = "";
+            for (ImageInfo imageInfo : workerImagesInfo) {
+                String workerName = imageInfo.getName();
+                String workerImageAddress = "";
 
-                // Cut the worker image name if an external image is used
-                // The worker image name could happen to be longer than 63 chars and this causes
-                // error when deploying
-                if (workerImage.contains("/")) {
-                    workerName = workerImage.substring(workerImage.lastIndexOf("/") + 1);
+                log.debug("Checking image availability localy");
+                if (workerService.imageIsAvailableLocaly(imageInfo.getName())) {
+                    log.info("Image {} found in the local repository", imageInfo.getName());
+                    workerImageAddress = imageInfo.getName();
                 } else {
-                    workerName = workerImage;
+                    log.info(
+                            "Image {} was not found localy. Will try to deploy from the external image repository {} with tag",
+                            imageInfo.getName(), imageInfo.getExternalSource(), imageInfo.getTag());
+                    workerImageAddress = imageInfo.getExternalSource() + "/" + imageInfo.getName() + ":"
+                            + imageInfo.getTag();
                 }
 
-                // Cut await also the colon and any version slug afterwards
-                if (workerName.contains(":")) {
-                    workerName = workerName.substring(0, workerName.lastIndexOf(":"));
-                }
-
-                log.info("Creating a container with name: {} and image: {}", workerName, workerImage);
-                workerService.hasOrStartWorker(workerImage, workerName);
+                log.info("Creating a container with name: {} and image: {}", workerName, workerImageAddress);
+                workerService.hasOrStartWorker(workerImageAddress, workerName);
             }
 
             // deploy processes
             createCamundaDeployment(analysis);
+
             // start processes (starts timer task to do the analysis)
-            startFirstWorkflow(analysis);
+            startFirstWorkflow(analysis.getId(), appKey);
 
             output.put("status", "Analysis is started");
             output.put("message", "App is now a subscriber");
 
         } else {
             log.debug("Analysis is currently running");
-            appSubscribers = startedAnalyses.get(analysisId);
-
+            
+            String message = addSubscriberToAnalysis(analysisId, appKey);
+            
             output.put("status", "Analysis is already running.");
-
-            // If the analysis is started check if the app is a subscriber
-            if (!appSubscribers.contains(appKey)) {
-                appSubscribers.add(appKey);
-                output.put("message", "Added app to subscribers list");
-            } else {
-                output.put("message", "This app is already a subscriber");
-            }
+            output.put("message", message);
         }
 
         return output;
@@ -220,6 +206,41 @@ public class MainEngineService {
         });
     }
 
+    public String addSubscriberToAnalysis(Long analysisId, String appKey) {
+        App app = getApp(appKey);
+        Analysis analysis = getAnalysis(analysisId);
+        
+        String message = "";
+        
+        if (!analysis.getSubscribers().contains(app)) {
+            analysis.addSubscriber(app);
+            analysisRepository.save(analysis);
+            message = "Added app to subscribers list";
+            log.info("App: " + appKey + " subscribed to analysis with id " + analysisId);
+        } else {
+            message = "This app is already a subscriber";
+        }
+        return message;
+    }
+
+    public String removeSubscriberFromAnalysis(Long analysisId, String appKey) {
+        App app = getApp(appKey);
+        Analysis analysis = getAnalysis(analysisId);
+
+        String message = "";
+        
+        if (!analysis.getSubscribers().contains(app)) {
+            message = "The app is not a subscriber";
+        } else {
+            analysis.removeSubscriber(app);
+            analysisRepository.save(analysis);
+            message = "Removed app from the subscribers list";
+            log.info("App: " + appKey + " unsubscribed from analysis with id " + analysisId);
+        }
+        
+        return message;
+    }
+
     @SuppressWarnings("unchecked")
     private void loadPluginRunner(AnalysisPlugin analysisPlugin) {
         if (this.loadedPlugins.containsKey(analysisPlugin.getPluginFileName()))
@@ -246,6 +267,11 @@ public class MainEngineService {
             Class<?> resultClazz = Class.forName(analysisPlugin.getResultClasspath(), true, loader);
             Class<? extends AnalysisReportAbstract> analysisResultClass = resultClazz
                     .asSubclass(AnalysisReportAbstract.class);
+            // Apparently its bad to use Class.newInstance, so we use
+            // newClass.getConstructor() instead
+            // Constructor<? extends AnalysisPluginAbstract> constructor =
+            // analysisPluginClass.getConstructor();
+            // constructor.newInstance();
 
             // Add new entry for plugin identified by its filename
             this.loadedPlugins.put(analysisPlugin.getPluginFileName(), new HashMap<>());
@@ -291,17 +317,17 @@ public class MainEngineService {
     }
 
     public void reportError(Long analysisId, Exception ex) {
-        AnalysisState analysisState = runningAnalyses.get(analysisId);
-        Analysis analysis = analysisState.getAnalysis();
+        Analysis analysis = getAnalysis(analysisId);
         // TODO remove deployment?
         // TODO add error as report?
         analysis.getCurrentAnalysisReport().setError(ex.getMessage());
-        finishAnalysis(analysis);
+        finishAnalysis(analysisId);
     }
 
-    private void startFirstWorkflow(Analysis analysis) throws InterruptedException {
-        AnalysisState analysisState = new AnalysisState(analysis);
-        runningAnalyses.put(analysis.getId(), analysisState);
+    private void startFirstWorkflow(Long analysisId, String appKey) throws InterruptedException {
+        Analysis analysis = getAnalysis(analysisId);
+        AnalysisState analysisState = new AnalysisState(analysis, appKey);
+        runningAnalyses.put(analysisId, analysisState);
         startWorkflow(analysisState);
     }
 
@@ -310,6 +336,10 @@ public class MainEngineService {
         CamundaProcessInstance processInstance = camundaClient
                 .startCamundaProcess(workflow.getCamundaProcessDefinitionId());
         analysisState.setStartedProcessInstance(processInstance);
+        // Timer timer = new Timer();
+        // timer.schedule(new CamundaProcessMonitorTimerTask(this,
+        // processInstance.getId(), policyAnalysisState.getPolicyAnalysis().getId()), 0,
+        // 5000);
         asyncService.camundaProcessMonitor(analysisState.getAnalysis().getId(), processInstance.getId(), 5000);
     }
 
@@ -332,7 +362,7 @@ public class MainEngineService {
         // start next workflow if not finished
         if (analysisState.isFinished()) {
             log.info("Analysis {}: all phases finished", analysisId);
-            runQueriesForAnalysis(analysisState.getAnalysis(), analysisState.getOutputOntologyName());
+            runQueriesForAnalysis(analysisId, analysisState.getOutputOntologyName());
         } else {
             startWorkflow(analysisState);
         }
@@ -342,6 +372,7 @@ public class MainEngineService {
             CamundaProcessInstanceHistory history) {
         log.info("Suspended process {}", processInstanceId);
         AnalysisState analysisState = runningAnalyses.get(analysisId);
+        // TODO what to do on suspended? for now put error in analysis report
         reportError(analysisId,
                 new CamundaProcessSuspendedException("Process " + processInstanceId + " got suspended"));
     }
@@ -390,7 +421,8 @@ public class MainEngineService {
         }
     }
 
-    public synchronized void runQueriesForAnalysis(Analysis analysis, String outputOntologyName) {
+    public synchronized void runQueriesForAnalysis(Long analysisId, String outputOntologyName) {
+        Analysis analysis = getAnalysis(analysisId);
         // run query for each policy analysis
         for (PolicyAnalysis policyAnalysis : analysis.getPolicyAnalyses()) {
             // loading plugin runner
@@ -398,12 +430,12 @@ public class MainEngineService {
             // run the query and generate a report
             runQueryForPolicyAnalysis(policyAnalysis, outputOntologyName);
         }
-        finishAnalysis(analysis);
+        finishAnalysis(analysisId);
     }
 
-    public synchronized void finishAnalysis(Analysis analysis) {
-        // remove analysis state
-        runningAnalyses.remove(analysis.getId());
+    public synchronized void finishAnalysis(Long analysisId) {
+        AnalysisState runningAnalysisState = runningAnalyses.get(analysisId);
+        Analysis analysis = getAnalysis(analysisId);
 
         // remove the report as current analysis report
         AnalysisReport analysisReport = analysis.getCurrentAnalysisReport();
@@ -415,30 +447,31 @@ public class MainEngineService {
         analysis.setLastFinish(finishTimestamp);
 
         // Notify subscribers
-        List<String> subscribers = startedAnalyses.get(analysis.getId());
-        for (String appKey : subscribers) {
-            App app = getApp(appKey);
+        Set<App> subscribers = analysis.getSubscribers();
+        for (App app : subscribers) {
             log.info("Notified app {} about new report with id {}", app.getKey(), analysisReport.getId());
-            notify(app.getReportCallbackURI(), app.getToken(), analysis.getUuid(), analysisReport.getId());
+            notify(app.getReportCallbackURI(), app.getToken(), analysis.getId(), analysisReport.getId());
         }
         analysisRepository.save(analysis);
 
-        startedAnalyses.remove(analysis.getId());
+        // remove analysis state
+        runningAnalyses.remove(analysis.getId());
         log.info("Finished Analysis {} with id {}", analysis.getName(), analysis.getId());
     }
 
-    private synchronized void notify(String reportCallbackURI, String token, String analysisUuid, Long reportId) {
+    private synchronized void notify(String reportCallbackURI, String token, Long analysisId, Long reportId) {
         RestTemplate restTemplate;
         HttpHeaders headers = new HttpHeaders();
         headers.set("token", token);
 
         HttpEntity<ReportNotification> requestEntity = new HttpEntity<ReportNotification>(
-                new ReportNotification(analysisUuid, reportId), headers);
+                new ReportNotification(analysisId, reportId), headers);
 
         try {
             restTemplate = restTemplateCreator.create();
             restTemplate.postForLocation(reportCallbackURI, requestEntity);
         } catch (Exception e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

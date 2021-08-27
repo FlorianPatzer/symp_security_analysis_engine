@@ -1,0 +1,33 @@
+version: '3.3'
+services:
+    symp-fuseki:
+        build: ./fuseki
+        ports:
+            - "3030:3030"
+        container_name: symp-fuseki
+        restart: unless-stopped
+        volumes:
+            - ./DB2:/fuseki/DB2
+        networks:
+            - symp
+        
+    symp-sae:
+        build: .
+        ports:
+            - "8543:8543"
+        container_name: symp-sae
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        environment:
+            PROFILE: prod
+            TOKEN: none
+        restart: unless-stopped
+        networks:
+            - symp
+       
+networks:
+    symp:
+        external:
+            name: symp
+
+

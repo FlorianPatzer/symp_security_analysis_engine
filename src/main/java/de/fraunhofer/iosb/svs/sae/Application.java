@@ -77,7 +77,6 @@ public class Application extends SpringBootServletInitializer implements Command
         final SimpleFilterProvider filterProvider = new SimpleFilterProvider();
         // filter to show only id
         filterProvider.addFilter("idOnly", SimpleBeanPropertyFilter.filterOutAllExcept("id"));
-        filterProvider.addFilter("uuidOnly", SimpleBeanPropertyFilter.filterOutAllExcept("uuid"));
         filterProvider.addFilter("nameOnly", SimpleBeanPropertyFilter.filterOutAllExcept("name"));
         filterProvider.addFilter("shortPolicyAnalysis",
                 SimpleBeanPropertyFilter.filterOutAllExcept("name", "description", "link", "query"));

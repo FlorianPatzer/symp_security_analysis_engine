@@ -20,5 +20,7 @@ public class ShutdownCoordinator {
     public void destroy() {
         log.info("Stopping started docker containers");
         dockerService.shutdownStartedContainers();
+
+        // TODO stop camunda processes?
     }
 }
